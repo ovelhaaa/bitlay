@@ -420,7 +420,7 @@ class CVSDDelayProcessor extends AudioWorkletProcessor {
           delayBuf[this.writePtr] = tapState.lpState;
 
           if (!reverseModeActive) {
-            outputSample = tapState.lpState;
+            outputSample = finalDelayedSample;
           }
 
           // Accumulate this tap output

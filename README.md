@@ -1,6 +1,9 @@
-# Delta Delay CVSD (Bitlay)
+# Delta Delay CVSD (Bitlay) v1.1
 
 Bitlay (Delta Delay CVSD) é um delay digital vintage de 1-bit construído com React, TypeScript e Vite. O plugin emula a degradação e o caráter único dos clássicos atrasos digitais iniciais (como os baseados na família de chips Lexicon Delta T e delays em pedais antigos de 1-bit) usando o algoritmo de Modulação Delta Continuamente Variável (CVSD - Continuously Variable Slope Delta modulation).
+
+## Changelog
+- **v1.1**: Correção do comportamento sonoro do DSP. Anteriormente, quando o `feedback` estava zerado, a saída direta não aplicava o atraso (entregava o sinal codificado instantaneamente). Agora, a saída direta também utiliza o buffer de delay (`finalDelayedSample`), garantindo que o tempo de delay afete o som mesmo sem feedback.
 
 ## Arquitetura Geral
 
