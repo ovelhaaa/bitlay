@@ -1,0 +1,6 @@
+{
+  "name": "Bitlay",
+  "description": "Um emulador de delay digital vintage baseado em modulação delta de 1-bit (CVSD) com degradação progressiva, filtros de reconstrução, tap tempo e modo reverse.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
