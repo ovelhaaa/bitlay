@@ -17,7 +17,7 @@ import {
   Timer,
   Music,
 } from 'lucide-react';
-import { CVSD_WORKLET_CODE } from './cvsd-worklet-code';
+import workletUrl from './cvsd-worklet.ts?worker&url';
 import { DEFAULT_PARAMS, CVSDDelayParams } from './types';
 import SoundGenerator from './components/SoundGenerator';
 import Visualizer from './components/Visualizer';
@@ -154,10 +154,6 @@ export default function App() {
 
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-
-      // We must create a Blob URL for the Worklet code
-      const blob = new Blob([CVSD_WORKLET_CODE], { type: 'application/javascript' });
-      const workletUrl = URL.createObjectURL(blob);
 
       // Load the worklet
       await ctx.audioWorklet.addModule(workletUrl);
