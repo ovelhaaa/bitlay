@@ -58,7 +58,7 @@ export default function SoundGenerator({
 
   const stopAll = () => {
     setIsPlayingSource(false);
-    
+
     // Stop synth scheduler
     if (schedulerTimerRef.current) {
       window.clearInterval(schedulerTimerRef.current);
@@ -67,7 +67,7 @@ export default function SoundGenerator({
 
     // Stop mic stream
     if (micStreamRef.current) {
-      micStreamRef.current.getTracks().forEach(track => track.stop());
+      micStreamRef.current.getTracks().forEach((track) => track.stop());
       micStreamRef.current = null;
     }
     if (micNodeRef.current) {
@@ -91,7 +91,7 @@ export default function SoundGenerator({
   // --- SYNTHESIZER SEQUENCER ENGINE ---
   const startSynthSequencer = () => {
     if (!contextRef.current || !destinationRef.current) return;
-    
+
     if (contextRef.current.state === 'suspended') {
       contextRef.current.resume();
     }
@@ -127,7 +127,7 @@ export default function SoundGenerator({
       // Elegant arpeggio sequence (A minor)
       const pitches = [57, 60, 64, 67, 69, 72, 76, 72, 69, 67, 64, 60, 57, 57, 64, 67];
       const midiNote = pitches[step];
-      
+
       // Pluck every 2nd 16th note, or syncopated
       const playStep = step % 2 === 0 || step === 7 || step === 11;
       if (playStep && midiNote) {
@@ -173,7 +173,7 @@ export default function SoundGenerator({
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.Q.setValueAtTime(4, time);
-    
+
     // Filter envelope: quick decay for pluckiness
     filter.frequency.setValueAtTime(200, time);
     filter.frequency.exponentialRampToValueAtTime(3000, time + 0.005);
@@ -240,7 +240,7 @@ export default function SoundGenerator({
     const tone = ctx.createOscillator();
     tone.type = 'triangle';
     tone.frequency.setValueAtTime(180, time);
-    
+
     const toneGain = ctx.createGain();
     toneGain.gain.setValueAtTime(0, time);
     toneGain.gain.linearRampToValueAtTime(0.25, time + 0.002);
@@ -424,7 +424,10 @@ export default function SoundGenerator({
   };
 
   return (
-    <div id="sound-generator-card" className="bg-panel border border-border-dark rounded-xl p-5 flex flex-col gap-4 shadow-lg">
+    <div
+      id="sound-generator-card"
+      className="bg-panel border border-border-dark rounded-xl p-5 flex flex-col gap-4 shadow-lg"
+    >
       <div className="flex items-center justify-between border-b border-border-dark pb-3">
         <div className="flex items-center gap-2">
           <Volume2 className="w-5 h-5 text-retro" />
@@ -489,7 +492,7 @@ export default function SoundGenerator({
                 Preset do Sequenciador
               </label>
               <div className="grid grid-cols-3 gap-1.5">
-                {(['pluck', 'beat', 'click'] as SynthPreset[]).map(preset => (
+                {(['pluck', 'beat', 'click'] as SynthPreset[]).map((preset) => (
                   <button
                     key={preset}
                     id={`btn-preset-${preset}`}
@@ -586,7 +589,11 @@ export default function SoundGenerator({
                     {fileName ? fileName : 'Escolha um arquivo de áudio...'}
                   </span>
                   <span className="text-[10px] font-mono text-zinc-500 uppercase">
-                    {fileLoading ? 'Lendo...' : fileBufferRef.current ? 'Carregado com sucesso' : 'MP3, WAV, OGG, M4A'}
+                    {fileLoading
+                      ? 'Lendo...'
+                      : fileBufferRef.current
+                        ? 'Carregado com sucesso'
+                        : 'MP3, WAV, OGG, M4A'}
                   </span>
                 </div>
               </div>
@@ -601,8 +608,8 @@ export default function SoundGenerator({
                   !fileBufferRef.current
                     ? 'bg-border-dark text-zinc-600 border border-border-dark/40 cursor-not-allowed'
                     : isPlayingSource
-                    ? 'bg-red-600/15 border border-red-500/30 text-red-400 hover:bg-red-600/25'
-                    : 'bg-retro text-black hover:bg-retro/90 font-bold shadow-md shadow-retro/10'
+                      ? 'bg-red-600/15 border border-red-500/30 text-red-400 hover:bg-red-600/25'
+                      : 'bg-retro text-black hover:bg-retro/90 font-bold shadow-md shadow-retro/10'
                 }`}
               >
                 {isPlayingSource ? (
@@ -623,7 +630,9 @@ export default function SoundGenerator({
       <div className="flex items-center gap-1.5 p-2 bg-bg-dark rounded border border-border-dim">
         <Sparkles className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
         <span className="text-[10px] font-mono text-zinc-500 leading-normal">
-          Dica: Use o preset <strong className="text-zinc-400">Pluck</strong> ou <strong className="text-zinc-400">Click</strong> para testar a resposta rápida de transientes da modulação CVSD.
+          Dica: Use o preset <strong className="text-zinc-400">Pluck</strong> ou{' '}
+          <strong className="text-zinc-400">Click</strong> para testar a resposta rápida de
+          transientes da modulação CVSD.
         </span>
       </div>
     </div>

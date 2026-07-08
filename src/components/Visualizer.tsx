@@ -59,7 +59,7 @@ export default function Visualizer({
       // Draw grid lines
       ctx.strokeStyle = '#121214'; // Sophisticated Dark panel bg
       ctx.lineWidth = 1;
-      
+
       // Horizontal grid lines
       const gridRows = 6;
       for (let i = 1; i < gridRows; i++) {
@@ -107,14 +107,14 @@ export default function Visualizer({
       if (hasData && isPlaying) {
         if (mode === 'delta') {
           // --- DELTA OSCILLOSCOPE (Dry vs Integrator) ---
-          
+
           // Plot original Dry input signal in cool gray
           ctx.beginPath();
           ctx.strokeStyle = 'rgba(161, 161, 170, 0.45)'; // zinc-400
           ctx.lineWidth = 1.5;
           for (let i = 0; i < bufferLength; i++) {
             const x = (width / bufferLength) * i;
-            const y = (height / 2) - (dryData[i] * (height * 0.42));
+            const y = height / 2 - dryData[i] * (height * 0.42);
             if (i === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
           }
@@ -130,7 +130,7 @@ export default function Visualizer({
           ctx.shadowColor = 'rgba(242, 125, 38, 0.5)';
           for (let i = 0; i < bufferLength; i++) {
             const x = (width / bufferLength) * i;
-            const y = (height / 2) - (intData[i] * (height * 0.42));
+            const y = height / 2 - intData[i] * (height * 0.42);
             if (i === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
           }
@@ -143,17 +143,16 @@ export default function Visualizer({
           ctx.fillText('Entrada (Dry)', 12, 18);
           ctx.fillStyle = '#F27D26';
           ctx.fillText('Modulador CVSD (Reconstruído)', 12, 32);
-
         } else if (mode === 'stepSize') {
           // --- STEP SIZE DYNAMICS ---
-          
+
           // Plot original Dry wave in background for context
           ctx.beginPath();
           ctx.strokeStyle = 'rgba(63, 63, 70, 0.5)'; // zinc-700
           ctx.lineWidth = 1;
           for (let i = 0; i < bufferLength; i++) {
             const x = (width / bufferLength) * i;
-            const y = (height * 0.7) - (dryData[i] * (height * 0.25));
+            const y = height * 0.7 - dryData[i] * (height * 0.25);
             if (i === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
           }
@@ -170,7 +169,7 @@ export default function Visualizer({
             const x = (width / bufferLength) * i;
             // Step size is positive, so we draw it from bottom up
             const stepVal = Math.min(stepData[i], 1.5); // Cap for drawing
-            const y = (height - 12) - (stepVal * (height * 0.5));
+            const y = height - 12 - stepVal * (height * 0.5);
             if (i === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
           }
@@ -183,17 +182,16 @@ export default function Visualizer({
           ctx.fillText('Sinal (Fundo)', 12, 18);
           ctx.fillStyle = '#06b6d4';
           ctx.fillText('Step Size Adaptativo (Compansão Silábica)', 12, 32);
-
         } else if (mode === 'spectrum') {
           // --- SPECTRUM COMPARISON (Dry vs Wet with cumulative LP filter) ---
-          
+
           // Plot Dry waveform
           ctx.beginPath();
           ctx.strokeStyle = '#71717a'; // zinc-500
           ctx.lineWidth = 1.5;
           for (let i = 0; i < bufferLength; i++) {
             const x = (width / bufferLength) * i;
-            const y = (height / 2) - (dryData[i] * (height * 0.42));
+            const y = height / 2 - dryData[i] * (height * 0.42);
             if (i === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
           }
@@ -207,7 +205,7 @@ export default function Visualizer({
           ctx.shadowColor = 'rgba(16, 185, 129, 0.4)';
           for (let i = 0; i < bufferLength; i++) {
             const x = (width / bufferLength) * i;
-            const y = (height / 2) - (wetData[i] * (height * 0.42));
+            const y = height / 2 - wetData[i] * (height * 0.42);
             if (i === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
           }
@@ -252,7 +250,10 @@ export default function Visualizer({
   }, [mode, dryAnalyser, wetAnalyser, integratorAnalyser, stepSizeAnalyser, isPlaying]);
 
   return (
-    <div id="visualizer-card" className="bg-panel border border-border-dark rounded-xl p-5 flex flex-col gap-4 shadow-lg h-full">
+    <div
+      id="visualizer-card"
+      className="bg-panel border border-border-dark rounded-xl p-5 flex flex-col gap-4 shadow-lg h-full"
+    >
       <div className="flex items-center justify-between border-b border-border-dark pb-3">
         <div className="flex items-center gap-2">
           <Activity className="w-5 h-5 text-retro" />
@@ -260,7 +261,7 @@ export default function Visualizer({
             Visualizador de Sinais DSP
           </h2>
         </div>
-        
+
         {/* Mode Selector */}
         <div className="flex gap-1 bg-bg-dark p-0.5 rounded-lg border border-border-dark">
           <button
@@ -305,7 +306,7 @@ export default function Visualizer({
       {/* Screen Container */}
       <div className="relative flex-1 bg-bg-dark rounded-lg border border-border-dark overflow-hidden min-h-[220px]">
         <canvas ref={canvasRef} className="w-full h-full block" />
-        
+
         {/* Retro screen overlay grid lines */}
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.45)_100%)] mix-blend-overlay"></div>
         <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[size:100%_4px,3px_100%]"></div>
