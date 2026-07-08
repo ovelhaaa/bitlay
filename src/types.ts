@@ -1,28 +1,28 @@
 export interface TapConfig {
   multiplier: number; // 0.1 - 2.0
-  mix: number; // 0.0 - 1.0
+  mix: number;        // 0.0 - 1.0
   subdivision: '1/16' | '1/3T' | '1/8' | '1/8D' | '1/4' | '1/2D' | '1/2' | 'custom';
 }
 
 export interface CVSDDelayParams {
   circuitType: 'discrete' | 'companded';
-  character: number; // 0.0 - 100.0
-  delayTime: number; // ms (10 - 2000)
-  feedback: number; // 0.0 - 1.0
-  mix: number; // 0.0 - 1.0
-  wobbleRate: number; // 0.01 - 20.0
-  wobbleDepth: number; // 0.0 - 50.0
-  feedbackTone: number; // 100 - 20000 (Hz)
-  inputDrive: number; // 0.1 - 10.0
-  dynamicResponse: number; // 0.0 - 1.0
-  stereoSpread: number; // 0.0 - 100.0 (%)
-  clockJitter: number; // 0.0 - 100.0
-  integratorLag: number; // 1.0 - 50.0
+  character: number;          // 0.0 - 100.0
+  delayTime: number;          // ms (10 - 2000)
+  feedback: number;           // 0.0 - 1.0
+  mix: number;                // 0.0 - 1.0
+  wobbleRate: number;         // 0.01 - 20.0
+  wobbleDepth: number;        // 0.0 - 50.0
+  feedbackTone: number;       // 100 - 20000 (Hz)
+  inputDrive: number;         // 0.1 - 10.0
+  dynamicResponse: number;    // 0.0 - 1.0
+  stereoSpread: number;       // 0.0 - 100.0 (%)
+  clockJitter: number;        // 0.0 - 100.0
+  integratorLag: number;      // 1.0 - 50.0
   reconstructionCutoff: number; // Hz (100 - 20000)
   integratorLeak: number;
   envAttack: number;
-  envRelease: number; // 0.8 - 1.0
-
+  envRelease: number;     // 0.8 - 1.0
+  
   // Multi-tap config
   numTaps: number;
   tapDecay: boolean;
@@ -71,8 +71,8 @@ export const DEFAULT_PARAMS: CVSDDelayParams = {
   reconstructionCutoff: 3500,
   integratorLeak: 0.995,
   envAttack: 0.005,
-  envRelease: 0.05,
-
+  envRelease: 0.050,
+  
   numTaps: 2,
   tapDecay: true,
   taps: {
@@ -99,5 +99,6 @@ export const DEFAULT_PARAMS: CVSDDelayParams = {
     minStepSize: 0.002,
     maxStepSize: 0.12,
     syllabicTime: 20,
-  },
+  }
 };
+
