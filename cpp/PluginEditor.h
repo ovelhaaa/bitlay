@@ -118,11 +118,7 @@ private:
     ToggleWithLabel reverseMode;
     SliderWithLabel reverseChunkSize, reverseFeedback;
 
-    void layoutMainTab(juce::Component* tab);
-    void layoutLfoTab(juce::Component* tab);
-    void layoutCircuitTab(juce::Component* tab);
-    void layoutTapsTab(juce::Component* tab);
-    void layoutReverseTab(juce::Component* tab);
+
 
     juce::Component* mainTabComp;
     juce::Component* lfoTabComp;

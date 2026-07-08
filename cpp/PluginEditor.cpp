@@ -253,24 +253,7 @@ void BitlayAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillAll (WebStyleLookAndFeel::colorBgDark);
 }
 
-void BitlayAudioProcessorEditor::layoutMainTab(juce::Component* tab) {
-    juce::FlexBox fb;
-    fb.flexWrap = juce::FlexBox::Wrap::wrap;
-    fb.justifyContent = juce::FlexBox::JustifyContent::center;
-    fb.alignContent = juce::FlexBox::AlignContent::center;
-    
-    auto addBox = [&fb](juce::Component& c, juce::Component& l, float width = 80, float height = 80) {
-        juce::FlexBox itemFb;
-        itemFb.flexDirection = juce::FlexBox::Direction::column;
-        itemFb.items.add(juce::FlexItem(c).withFlex(1));
-        itemFb.items.add(juce::FlexItem(l).withHeight(20));
-        
-        juce::Component* wrapper = new juce::Component();
-        tab->addAndMakeVisible(wrapper); // Will leak slightly if resized repeatedly but this is juce::FlexBox typical static layout approach
-        // wait, we can't create new wrappers in resized without tracking them.
-    };
-    // Standard Juce grid layout is safer without wrapper components.
-}
+
 
 // Simpler layout
 void BitlayAudioProcessorEditor::resized()
