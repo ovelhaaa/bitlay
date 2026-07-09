@@ -30,17 +30,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout BitlayAudioProcessor::create
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("feedback", 1), "Feedback", 0.0f, 1.0f, 0.6f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("mix", 1), "Mix", 0.0f, 1.0f, 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("bypass", 1), "Bypass", false));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("stepSize", 1), "Step Size", 0.001f, 1.0f, 0.02f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("clockJitter", 1), "Clock Jitter", 0.0f, 1.0f, 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("integratorLag", 1), "Integrator Lag", 0.0f, 1.0f, 0.5f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reconstructionCutoff", 1), "Recon Cutoff", 200.0f, 20000.0f, 3500.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("integratorLeak", 1), "Integrator Leak", 0.0f, 1.0f, 0.995f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("stepSize", 1), "Step Size", 0.001f, 0.2f, 0.02f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("clockJitter", 1), "Clock Jitter", 0.0f, 100.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("integratorLag", 1), "Integrator Lag", 1.0f, 50.0f, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("reconstructionCutoff", 1), "Recon Cutoff", 100.0f, 20000.0f, 3500.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("integratorLeak", 1), "Integrator Leak", 0.9f, 1.0f, 0.995f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("character", 1), "Character", 0.0f, 100.0f, 25.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("dynamicResponse", 1), "Dyn Response", 0.0f, 1.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("wobbleDepth", 1), "Wobble Depth", 0.0f, 50.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("wobbleRate", 1), "Wobble Rate", 0.1f, 20.0f, 1.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("feedbackTone", 1), "Feedback Tone", 200.0f, 20000.0f, 4000.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("stereoSpread", 1), "Stereo Spread", 0.0f, 1.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("stereoSpread", 1), "Stereo Spread", 0.0f, 100.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("freeze", 1), "Freeze", false));
     params.push_back(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("coupledMode", 1), "Coupled Mode", true));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("envAttack", 1), "Env Attack", 0.001f, 1.0f, 0.005f));
@@ -121,8 +121,13 @@ void BitlayAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i) {
+        if (totalNumInputChannels > 0) {
+            buffer.copyFrom (i, 0, buffer, 0, 0, buffer.getNumSamples());
+        } else {
+            buffer.clear (i, 0, buffer.getNumSamples());
+        }
+    }
 
     auto setCoreParam = [this](const juce::String& id, ParamID coreId) {
         if (auto* ptr = apvts.getRawParameterValue(id))
@@ -231,7 +236,7 @@ void BitlayAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
 
     core.process(buffer.getArrayOfReadPointers(), buffer.getArrayOfWritePointers(), 
                  tempIntegrator.data(), tempStepSize.data(), 
-                 totalNumInputChannels, numSamples);
+                 totalNumOutputChannels, numSamples);
 
     int start1, size1, start2, size2;
     scopeFifo.prepareToWrite(numSamples, start1, size1, start2, size2);
