@@ -36,6 +36,15 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    // Preset Management
+    juce::File getPresetsDirectory() const;
+    juce::StringArray getPresetNames() const;
+    void loadPreset (const juce::String& presetName);
+    void savePreset (const juce::String& presetName);
+    void createDefaultPresetsIfNeeded();
+
+    juce::String currentPreset = "Default";
+
     juce::AudioProcessorValueTreeState apvts;
 
     // FIFO for Oscilloscope

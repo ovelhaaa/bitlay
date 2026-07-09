@@ -233,7 +233,41 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     addAndMakeVisible(tabs);
     addAndMakeVisible(scope);
 
-    setSize (700, 500);
+    savePresetButton.setButtonText("Save");
+    newPresetButton.setButtonText("Save As...");
+
+    addAndMakeVisible(presetComboBox);
+    addAndMakeVisible(savePresetButton);
+    addAndMakeVisible(newPresetButton);
+
+    updatePresetList();
+
+    presetComboBox.onChange = [this] {
+        if (presetComboBox.getSelectedItemIndex() >= 0) {
+            audioProcessor.loadPreset(presetComboBox.getText());
+        }
+    };
+
+    savePresetButton.onClick = [this] {
+        audioProcessor.savePreset(presetComboBox.getText());
+    };
+
+    newPresetButton.onClick = [this] {
+        juce::AlertWindow alert ("New Preset", "Enter preset name:", juce::AlertWindow::NoIcon);
+        alert.addTextEditor ("name", audioProcessor.currentPreset);
+        alert.addButton ("Save", 1, juce::KeyPress (juce::KeyPress::returnKey, 0, 0));
+        alert.addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey, 0, 0));
+
+        if (alert.runModalLoop() != 0) {
+            juce::String name = alert.getTextEditorContents("name");
+            if (name.isNotEmpty()) {
+                audioProcessor.savePreset(name);
+                updatePresetList();
+            }
+        }
+    };
+
+    setSize (700, 550);
 }
 
 BitlayAudioProcessorEditor::~BitlayAudioProcessorEditor()
@@ -246,12 +280,31 @@ void BitlayAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillAll (WebStyleLookAndFeel::colorBgDark);
 }
 
-
+void BitlayAudioProcessorEditor::updatePresetList()
+{
+    presetComboBox.clear();
+    auto presets = audioProcessor.getPresetNames();
+    presetComboBox.addItemList(presets, 1);
+    
+    int index = presets.indexOf(audioProcessor.currentPreset);
+    if (index >= 0)
+        presetComboBox.setSelectedItemIndex(index, juce::dontSendNotification);
+    else if (presets.size() > 0)
+        presetComboBox.setSelectedItemIndex(0, juce::dontSendNotification);
+}
 
 // Simpler layout
 void BitlayAudioProcessorEditor::resized()
 {
     auto area = getLocalBounds();
+
+    auto headerArea = area.removeFromTop(40).reduced(10, 5);
+    presetComboBox.setBounds(headerArea.removeFromLeft(200));
+    headerArea.removeFromLeft(10);
+    savePresetButton.setBounds(headerArea.removeFromLeft(80));
+    headerArea.removeFromLeft(10);
+    newPresetButton.setBounds(headerArea.removeFromLeft(80));
+
     scope.setBounds(area.removeFromTop(100).reduced(10));
     tabs.setBounds(area.reduced(10));
 

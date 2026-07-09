@@ -16,6 +16,7 @@ BitlayAudioProcessor::BitlayAudioProcessor()
 #endif
     apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
 {
+    createDefaultPresetsIfNeeded();
 }
 
 BitlayAudioProcessor::~BitlayAudioProcessor()
@@ -273,4 +274,86 @@ void BitlayAudioProcessor::setStateInformation (const void* data, int sizeInByte
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new BitlayAudioProcessor();
+}
+
+// ==============================================================================
+// Preset Management
+// ==============================================================================
+
+juce::File BitlayAudioProcessor::getPresetsDirectory() const
+{
+    auto dir = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory)
+        .getChildFile("Bitlay")
+        .getChildFile("Presets");
+    
+    if (!dir.exists())
+        dir.createDirectory();
+        
+    return dir;
+}
+
+juce::StringArray BitlayAudioProcessor::getPresetNames() const
+{
+    juce::StringArray names;
+    auto dir = getPresetsDirectory();
+    auto files = dir.findChildFiles(juce::File::findFiles, false, "*.bitlay");
+    for (auto f : files)
+        names.add(f.getFileNameWithoutExtension());
+    return names;
+}
+
+void BitlayAudioProcessor::loadPreset(const juce::String& presetName)
+{
+    auto file = getPresetsDirectory().getChildFile(presetName + ".bitlay");
+    if (file.existsAsFile())
+    {
+        if (auto xmlState = juce::XmlDocument::parse(file))
+        {
+            apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+            currentPreset = presetName;
+        }
+    }
+}
+
+void BitlayAudioProcessor::savePreset(const juce::String& presetName)
+{
+    auto file = getPresetsDirectory().getChildFile(presetName + ".bitlay");
+    if (auto xmlState = apvts.copyState().createXml())
+    {
+        xmlState->writeTo(file);
+        currentPreset = presetName;
+    }
+}
+
+void BitlayAudioProcessor::createDefaultPresetsIfNeeded()
+{
+    auto createPresetFromXml = [this](const juce::String& name, const juce::String& xmlStr) {
+        auto file = getPresetsDirectory().getChildFile(name + ".bitlay");
+        if (!file.existsAsFile())
+        {
+            if (auto xml = juce::XmlDocument::parse(xmlStr))
+                xml->writeTo(file);
+        }
+    };
+
+    juce::String defaultXml = R"(<?xml version="1.0" encoding="UTF-8"?>
+<PARAMETERS delayTime="350.0" feedback="0.6" mix="0.5" bypass="0.0" stepSize="0.02" clockJitter="0.0" integratorLag="1.0" reconstructionCutoff="3500.0" integratorLeak="0.995" character="25.0" dynamicResponse="0.0" wobbleDepth="0.0" wobbleRate="1.5" feedbackTone="4000.0" stereoSpread="0.0" freeze="0.0" coupledMode="1.0" envAttack="0.005" envRelease="0.05" circuitType="0.0" minStepSize="0.002" maxStepSize="0.12" syllabicTime="20.0" numTaps="2.0" tapDecay="1.0" bpmSync="0.0" internalBpm="120.0" mainSubdivision="4.0" tap1_mult="0.5" tap1_mix="0.8" tap1_subdiv="2.0" tap2_mult="1.0" tap2_mix="0.6" tap2_subdiv="4.0" tap3_mult="1.5" tap3_mix="0.4" tap3_subdiv="5.0" tap4_mult="2.0" tap4_mix="0.2" tap4_subdiv="6.0" reverseMode="0.0" reverseChunkSize="350.0" reverseFeedback="0.0" wobbleSync="0.5"/>)";
+
+    juce::String slapbackXml = R"(<?xml version="1.0" encoding="UTF-8"?>
+<PARAMETERS delayTime="110.0" feedback="0.2" mix="0.4" bypass="0.0" stepSize="0.04" clockJitter="2.0" integratorLag="5.0" reconstructionCutoff="2500.0" integratorLeak="0.99" character="80.0" dynamicResponse="0.5" wobbleDepth="0.0" wobbleRate="1.0" feedbackTone="3000.0" stereoSpread="0.0" freeze="0.0" coupledMode="1.0" envAttack="0.01" envRelease="0.1" circuitType="0.0" minStepSize="0.002" maxStepSize="0.12" syllabicTime="20.0" numTaps="1.0" tapDecay="1.0" bpmSync="0.0" internalBpm="120.0" mainSubdivision="7.0" tap1_mult="1.0" tap1_mix="1.0" tap1_subdiv="7.0" tap2_mult="1.0" tap2_mix="0.0" tap2_subdiv="4.0" tap3_mult="1.5" tap3_mix="0.0" tap3_subdiv="5.0" tap4_mult="2.0" tap4_mix="0.0" tap4_subdiv="6.0" reverseMode="0.0" reverseChunkSize="350.0" reverseFeedback="0.0" wobbleSync="0.0"/>)";
+
+    juce::String lofiXml = R"(<?xml version="1.0" encoding="UTF-8"?>
+<PARAMETERS delayTime="400.0" feedback="0.75" mix="0.5" bypass="0.0" stepSize="0.06" clockJitter="40.0" integratorLag="15.0" reconstructionCutoff="1200.0" integratorLeak="0.95" character="95.0" dynamicResponse="0.8" wobbleDepth="15.0" wobbleRate="2.2" feedbackTone="1800.0" stereoSpread="25.0" freeze="0.0" coupledMode="0.0" envAttack="0.05" envRelease="0.2" circuitType="1.0" minStepSize="0.005" maxStepSize="0.08" syllabicTime="50.0" numTaps="2.0" tapDecay="0.0" bpmSync="0.0" internalBpm="120.0" mainSubdivision="7.0" tap1_mult="0.7" tap1_mix="0.5" tap1_subdiv="7.0" tap2_mult="1.2" tap2_mix="0.9" tap2_subdiv="7.0" tap3_mult="1.5" tap3_mix="0.0" tap3_subdiv="7.0" tap4_mult="2.0" tap4_mix="0.0" tap4_subdiv="7.0" reverseMode="0.0" reverseChunkSize="350.0" reverseFeedback="0.0" wobbleSync="0.0"/>)";
+
+    juce::String rhythmicXml = R"(<?xml version="1.0" encoding="UTF-8"?>
+<PARAMETERS delayTime="500.0" feedback="0.6" mix="0.45" bypass="0.0" stepSize="0.015" clockJitter="0.0" integratorLag="1.0" reconstructionCutoff="5000.0" integratorLeak="0.999" character="15.0" dynamicResponse="0.2" wobbleDepth="2.0" wobbleRate="0.5" feedbackTone="6000.0" stereoSpread="100.0" freeze="0.0" coupledMode="1.0" envAttack="0.001" envRelease="0.02" circuitType="0.0" minStepSize="0.002" maxStepSize="0.12" syllabicTime="10.0" numTaps="4.0" tapDecay="1.0" bpmSync="1.0" internalBpm="120.0" mainSubdivision="4.0" tap1_mult="0.5" tap1_mix="0.8" tap1_subdiv="2.0" tap2_mult="1.0" tap2_mix="0.6" tap2_subdiv="4.0" tap3_mult="1.5" tap3_mix="0.4" tap3_subdiv="5.0" tap4_mult="2.0" tap4_mix="0.2" tap4_subdiv="6.0" reverseMode="0.0" reverseChunkSize="350.0" reverseFeedback="0.0" wobbleSync="0.5"/>)";
+
+    juce::String compandedSpaceXml = R"(<?xml version="1.0" encoding="UTF-8"?>
+<PARAMETERS delayTime="850.0" feedback="0.85" mix="0.6" bypass="0.0" stepSize="0.02" clockJitter="5.0" integratorLag="3.0" reconstructionCutoff="2800.0" integratorLeak="0.99" character="40.0" dynamicResponse="0.0" wobbleDepth="8.0" wobbleRate="0.2" feedbackTone="2000.0" stereoSpread="80.0" freeze="0.0" coupledMode="1.0" envAttack="0.005" envRelease="0.05" circuitType="1.0" minStepSize="0.001" maxStepSize="0.15" syllabicTime="80.0" numTaps="3.0" tapDecay="0.0" bpmSync="0.0" internalBpm="120.0" mainSubdivision="7.0" tap1_mult="0.33" tap1_mix="0.4" tap1_subdiv="7.0" tap2_mult="0.66" tap2_mix="0.6" tap2_subdiv="7.0" tap3_mult="1.0" tap3_mix="0.9" tap3_subdiv="7.0" tap4_mult="2.0" tap4_mix="0.0" tap4_subdiv="7.0" reverseMode="0.0" reverseChunkSize="350.0" reverseFeedback="0.0" wobbleSync="0.0"/>)";
+
+    createPresetFromXml("Default", defaultXml);
+    createPresetFromXml("Vintage Slapback", slapbackXml);
+    createPresetFromXml("Lo-Fi Wobble", lofiXml);
+    createPresetFromXml("Rhythmic Tap Dance", rhythmicXml);
+    createPresetFromXml("Deep Companded Space", compandedSpaceXml);
 }

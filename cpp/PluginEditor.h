@@ -86,12 +86,18 @@ public:
     ~BitlayAudioProcessorEditor() override;
     void paint (juce::Graphics&) override;
     void resized() override;
+    void updatePresetList();
 private:
     BitlayAudioProcessor& audioProcessor;
     WebStyleLookAndFeel webLookAndFeel;
     OscilloscopeVisualizer scope;
 
     juce::TabbedComponent tabs;
+
+    // Preset Header
+    juce::ComboBox presetComboBox;
+    juce::TextButton savePresetButton;
+    juce::TextButton newPresetButton;
 
     // Components
     // MAIN
