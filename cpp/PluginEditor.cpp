@@ -1,12 +1,12 @@
 #include "PluginEditor.h"
 
-const juce::Colour WebStyleLookAndFeel::colorRetro = juce::Colour::fromString("#f27d26");
-const juce::Colour WebStyleLookAndFeel::colorBgDark = juce::Colour::fromString("#0a0a0b");
-const juce::Colour WebStyleLookAndFeel::colorPanel = juce::Colour::fromString("#121214");
-const juce::Colour WebStyleLookAndFeel::colorBorderDark = juce::Colour::fromString("#1f1f22");
-const juce::Colour WebStyleLookAndFeel::colorBorderDim = juce::Colour::fromString("#2a2a2d");
-const juce::Colour WebStyleLookAndFeel::colorTextWhite = juce::Colour::fromString("#fefefe");
-const juce::Colour WebStyleLookAndFeel::colorTextMuted = juce::Colour::fromString("#88888b");
+const juce::Colour WebStyleLookAndFeel::colorRetro = juce::Colour(0xfff27d26);
+const juce::Colour WebStyleLookAndFeel::colorBgDark = juce::Colour(0xff0a0a0b);
+const juce::Colour WebStyleLookAndFeel::colorPanel = juce::Colour(0xff121214);
+const juce::Colour WebStyleLookAndFeel::colorBorderDark = juce::Colour(0xff1f1f22);
+const juce::Colour WebStyleLookAndFeel::colorBorderDim = juce::Colour(0xff2a2a2d);
+const juce::Colour WebStyleLookAndFeel::colorTextWhite = juce::Colour(0xfffefefe);
+const juce::Colour WebStyleLookAndFeel::colorTextMuted = juce::Colour(0xff88888b);
 
 WebStyleLookAndFeel::WebStyleLookAndFeel()
 {
@@ -67,14 +67,7 @@ void WebStyleLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButto
                       juce::Justification::centredLeft, 10);
 }
 
-void WebStyleLookAndFeel::drawComboBox (juce::Graphics& g, int width, int height, bool isButtonDown, 
-                                        int buttonX, int buttonY, int buttonW, int buttonH, juce::ComboBox& box)
-{
-    g.setColour (colorPanel);
-    g.fillRoundedRectangle (0.0f, 0.0f, (float) width, (float) height, 4.0f);
-    g.setColour (colorBorderDim);
-    g.drawRoundedRectangle (0.0f, 0.0f, (float) width, (float) height, 4.0f, 1.0f);
-}
+
 
 juce::Font WebStyleLookAndFeel::getLabelFont (juce::Label&) { return juce::Font (13.0f); }
 juce::Font WebStyleLookAndFeel::getComboBoxFont (juce::ComboBox&) { return juce::Font (14.0f); }
