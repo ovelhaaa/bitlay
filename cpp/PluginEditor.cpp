@@ -253,18 +253,22 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     };
 
     newPresetButton.onClick = [this] {
-        juce::AlertWindow alert ("New Preset", "Enter preset name:", juce::AlertWindow::NoIcon);
-        alert.addTextEditor ("name", audioProcessor.currentPreset);
-        alert.addButton ("Save", 1, juce::KeyPress (juce::KeyPress::returnKey, 0, 0));
-        alert.addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey, 0, 0));
+        auto* alert = new juce::AlertWindow ("New Preset", "Enter preset name:", juce::AlertWindow::NoIcon);
+        alert->addTextEditor ("name", audioProcessor.currentPreset);
+        alert->addButton ("Save", 1, juce::KeyPress (juce::KeyPress::returnKey, 0, 0));
+        alert->addButton ("Cancel", 0, juce::KeyPress (juce::KeyPress::escapeKey, 0, 0));
 
-        if (alert.runModalLoop() != 0) {
-            juce::String name = alert.getTextEditorContents("name");
-            if (name.isNotEmpty()) {
-                audioProcessor.savePreset(name);
-                updatePresetList();
-            }
-        }
+        juce::Component::SafePointer<BitlayAudioProcessorEditor> safeThis (this);
+        alert->enterModalState (true,
+            juce::ModalCallbackFunction::create ([safeThis, alert] (int result) {
+                if (result == 1 && safeThis != nullptr) {
+                    juce::String name = alert->getTextEditorContents("name");
+                    if (name.isNotEmpty()) {
+                        safeThis->audioProcessor.savePreset(name);
+                        safeThis->updatePresetList();
+                    }
+                }
+            }), true);
     };
 
     setSize (700, 550);
