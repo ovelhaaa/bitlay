@@ -325,23 +325,23 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     // Add groups FIRST so they render behind
     addGroup(mainTabComp, &groupTime); addGroup(mainTabComp, &groupMacros); addGroup(mainTabComp, &groupMix);
     addGroup(tapsTabComp, &groupTapGlobal); addGroup(tapsTabComp, &groupTap1); addGroup(tapsTabComp, &groupTap2); addGroup(tapsTabComp, &groupTap3); addGroup(tapsTabComp, &groupTap4);
-    addGroup(circuitTabComp, &groupEngine); addGroup(circuitTabComp, &groupFilters); addGroup(circuitTabComp, &groupEnv); addGroup(circuitTabComp, &groupLfo);
-    addGroup(reverseTabComp, &groupRev);
+    addGroup(circuitTabComp, &groupEngine); addGroup(circuitTabComp, &groupFilters); addGroup(circuitTabComp, &groupEnv);
+    addGroup(reverseTabComp, &groupRev); addGroup(reverseTabComp, &groupLfo);
 
     auto addComps = [](juce::Component* p, std::vector<juce::Component*> c) { for (auto* comp : c) p->addAndMakeVisible(comp); };
 
     addComps(mainTabComp, {&delayTime.slider, &delayTime.label, &feedback.slider, &feedback.label, &mix.slider, &mix.label, &internalBpm.slider, &internalBpm.label, &mainSubdivision.combo, &mainSubdivision.label, &bpmSync.button, &freeze.button, &macroTexture, &labelTexture, &macroMovement, &labelMovement});
     
-    addComps(circuitTabComp, {&circuitType.combo, &circuitType.label, &coupledMode.button, &character.slider, &character.label, &stepSize.slider, &stepSize.label, &clockJitter.slider, &clockJitter.label, &integratorLag.slider, &integratorLag.label, &reconCutoff.slider, &reconCutoff.label, &integratorLeak.slider, &integratorLeak.label, &dynamicResponse.slider, &dynamicResponse.label, &feedbackTone.slider, &feedbackTone.label, &stereoSpread.slider, &stereoSpread.label, &envAttack.slider, &envAttack.label, &envRelease.slider, &envRelease.label, &minStepSize.slider, &minStepSize.label, &maxStepSize.slider, &maxStepSize.label, &syllabicTime.slider, &syllabicTime.label, &wobbleRate.slider, &wobbleRate.label, &wobbleDepth.slider, &wobbleDepth.label, &wobbleSync.slider, &wobbleSync.label});
+    addComps(circuitTabComp, {&circuitType.combo, &circuitType.label, &coupledMode.button, &character.slider, &character.label, &stepSize.slider, &stepSize.label, &clockJitter.slider, &clockJitter.label, &integratorLag.slider, &integratorLag.label, &reconCutoff.slider, &reconCutoff.label, &integratorLeak.slider, &integratorLeak.label, &dynamicResponse.slider, &dynamicResponse.label, &feedbackTone.slider, &feedbackTone.label, &stereoSpread.slider, &stereoSpread.label, &envAttack.slider, &envAttack.label, &envRelease.slider, &envRelease.label, &minStepSize.slider, &minStepSize.label, &maxStepSize.slider, &maxStepSize.label, &syllabicTime.slider, &syllabicTime.label});
     
     addComps(tapsTabComp, {&numTaps.slider, &numTaps.label, &tapDecay.slider, &tapDecay.label, &tap1Mult.slider, &tap1Mult.label, &tap1Mix.slider, &tap1Mix.label, &tap1Subdiv.combo, &tap1Subdiv.label, &tap2Mult.slider, &tap2Mult.label, &tap2Mix.slider, &tap2Mix.label, &tap2Subdiv.combo, &tap2Subdiv.label, &tap3Mult.slider, &tap3Mult.label, &tap3Mix.slider, &tap3Mix.label, &tap3Subdiv.combo, &tap3Subdiv.label, &tap4Mult.slider, &tap4Mult.label, &tap4Mix.slider, &tap4Mix.label, &tap4Subdiv.combo, &tap4Subdiv.label});
     
-    addComps(reverseTabComp, {&reverseChunkSize.slider, &reverseChunkSize.label, &reverseFeedback.slider, &reverseFeedback.label});
+    addComps(reverseTabComp, {&reverseChunkSize.slider, &reverseChunkSize.label, &reverseFeedback.slider, &reverseFeedback.label, &wobbleRate.slider, &wobbleRate.label, &wobbleDepth.slider, &wobbleDepth.label, &wobbleSync.slider, &wobbleSync.label});
 
     tabs.addTab("1. MACROS & CORE", WebStyleLookAndFeel::colorBgDark, mainTabComp, true);
     tabs.addTab("2. MULTI-TAP ENGINE", WebStyleLookAndFeel::colorBgDark, tapsTabComp, true);
     tabs.addTab("3. ADVANCED CVSD", WebStyleLookAndFeel::colorBgDark, circuitTabComp, true);
-    tabs.addTab("4. REVERSE SETUP", WebStyleLookAndFeel::colorBgDark, reverseTabComp, true);
+    tabs.addTab("4. REVERSE & MOD", WebStyleLookAndFeel::colorBgDark, reverseTabComp, true);
 
     addAndMakeVisible(tabs);
     addAndMakeVisible(scope);
@@ -456,35 +456,35 @@ void BitlayAudioProcessorEditor::resized()
     setupTapBox(groupTap4, tap4Mult, tap4Mix, tap4Subdiv, tx + 540);
 
     // CIRCUIT TAB
-    groupEngine.setBounds(10, 10, 340, 120);
-    placeCombo(circuitType, 30, 50, 100);
-    placeToggle(coupledMode, 150, 50, 120);
-    placeKnob(character, 30, 60, 60, 60);
-    placeKnob(stepSize, 100, 60, 60, 60);
-    placeKnob(minStepSize, 170, 60, 60, 60);
-    placeKnob(maxStepSize, 240, 60, 60, 60);
+    groupEngine.setBounds(10, 10, 450, 160);
+    placeCombo(circuitType, 30, 40, 120);
+    placeToggle(coupledMode, 170, 40, 120);
+    placeKnob(character, 30, 80, 80, 90);
+    placeKnob(stepSize, 130, 80, 80, 90);
+    placeKnob(minStepSize, 230, 80, 80, 90);
+    placeKnob(maxStepSize, 330, 80, 80, 90);
     
-    groupFilters.setBounds(370, 10, 380, 120);
-    placeKnob(integratorLag, 390, 50, 60, 60);
-    placeKnob(reconCutoff, 460, 50, 60, 60);
-    placeKnob(feedbackTone, 530, 50, 60, 60);
-    placeKnob(stereoSpread, 600, 50, 60, 60);
-    placeKnob(clockJitter, 670, 50, 60, 60);
+    groupFilters.setBounds(480, 10, 470, 160);
+    placeKnob(integratorLag, 500, 60, 80, 90);
+    placeKnob(reconCutoff, 590, 60, 80, 90);
+    placeKnob(feedbackTone, 680, 60, 80, 90);
+    placeKnob(stereoSpread, 770, 60, 80, 90);
+    placeKnob(clockJitter, 860, 60, 80, 90);
 
-    groupEnv.setBounds(10, 140, 460, 120);
-    placeKnob(envAttack, 30, 175, 70, 70);
-    placeKnob(envRelease, 110, 175, 70, 70);
-    placeKnob(syllabicTime, 190, 175, 70, 70);
-    placeKnob(integratorLeak, 270, 175, 70, 70);
-    placeKnob(dynamicResponse, 350, 175, 70, 70);
+    groupEnv.setBounds(10, 185, 940, 140);
+    placeKnob(envAttack, 100, 220, 80, 90);
+    placeKnob(envRelease, 250, 220, 80, 90);
+    placeKnob(syllabicTime, 400, 220, 80, 90);
+    placeKnob(integratorLeak, 550, 220, 80, 90);
+    placeKnob(dynamicResponse, 700, 220, 80, 90);
 
-    groupLfo.setBounds(490, 140, 260, 120);
-    placeKnob(wobbleRate, 510, 175, 70, 70);
-    placeKnob(wobbleDepth, 590, 175, 70, 70);
-    placeKnob(wobbleSync, 670, 175, 70, 70);
-
-    // REVERSE TAB
+    // REVERSE & MOD TAB
     groupRev.setBounds(10, 10, 300, 160);
-    placeKnob(reverseChunkSize, 30, 50);
-    placeKnob(reverseFeedback, 130, 50);
+    placeKnob(reverseChunkSize, 40, 50, 80, 90);
+    placeKnob(reverseFeedback, 160, 50, 80, 90);
+
+    groupLfo.setBounds(330, 10, 360, 160);
+    placeKnob(wobbleRate, 360, 50, 80, 90);
+    placeKnob(wobbleDepth, 460, 50, 80, 90);
+    placeKnob(wobbleSync, 560, 50, 80, 90);
 }
