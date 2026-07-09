@@ -351,9 +351,23 @@ void BitlayAudioProcessor::createDefaultPresetsIfNeeded()
     juce::String compandedSpaceXml = R"(<?xml version="1.0" encoding="UTF-8"?>
 <PARAMETERS delayTime="850.0" feedback="0.85" mix="0.6" bypass="0.0" stepSize="0.02" clockJitter="5.0" integratorLag="3.0" reconstructionCutoff="2800.0" integratorLeak="0.99" character="40.0" dynamicResponse="0.0" wobbleDepth="8.0" wobbleRate="0.2" feedbackTone="2000.0" stereoSpread="80.0" freeze="0.0" coupledMode="1.0" envAttack="0.005" envRelease="0.05" circuitType="1.0" minStepSize="0.001" maxStepSize="0.15" syllabicTime="80.0" numTaps="3.0" tapDecay="0.0" bpmSync="0.0" internalBpm="120.0" mainSubdivision="7.0" tap1_mult="0.33" tap1_mix="0.4" tap1_subdiv="7.0" tap2_mult="0.66" tap2_mix="0.6" tap2_subdiv="7.0" tap3_mult="1.0" tap3_mix="0.9" tap3_subdiv="7.0" tap4_mult="2.0" tap4_mix="0.0" tap4_subdiv="7.0" reverseMode="0.0" reverseChunkSize="350.0" reverseFeedback="0.0" wobbleSync="0.0"/>)";
 
+    juce::String ghostlyReverseXml = R"(<?xml version="1.0" encoding="UTF-8"?>
+<PARAMETERS delayTime="800.0" feedback="0.8" mix="0.7" bypass="0.0" stepSize="0.04" clockJitter="10.0" integratorLag="8.0" reconstructionCutoff="2000.0" integratorLeak="0.95" character="80.0" dynamicResponse="0.3" wobbleDepth="25.0" wobbleRate="0.8" feedbackTone="2500.0" stereoSpread="50.0" freeze="0.0" coupledMode="1.0" envAttack="0.01" envRelease="0.1" circuitType="1.0" minStepSize="0.005" maxStepSize="0.1" syllabicTime="40.0" numTaps="1.0" tapDecay="1.0" bpmSync="0.0" internalBpm="120.0" mainSubdivision="4.0" tap1_mult="1.0" tap1_mix="1.0" tap1_subdiv="4.0" tap2_mult="1.0" tap2_mix="0.0" tap2_subdiv="4.0" tap3_mult="1.0" tap3_mix="0.0" tap3_subdiv="5.0" tap4_mult="1.0" tap4_mix="0.0" tap4_subdiv="6.0" reverseMode="1.0" reverseChunkSize="600.0" reverseFeedback="0.6" wobbleSync="0.0"/>)";
+
+    juce::String crunchySludgeXml = R"(<?xml version="1.0" encoding="UTF-8"?>
+<PARAMETERS delayTime="150.0" feedback="0.6" mix="0.5" bypass="0.0" stepSize="0.005" clockJitter="60.0" integratorLag="30.0" reconstructionCutoff="1000.0" integratorLeak="0.90" character="100.0" dynamicResponse="0.8" wobbleDepth="5.0" wobbleRate="3.0" feedbackTone="1500.0" stereoSpread="10.0" freeze="0.0" coupledMode="0.0" envAttack="0.05" envRelease="0.2" circuitType="0.0" minStepSize="0.001" maxStepSize="0.05" syllabicTime="10.0" numTaps="1.0" tapDecay="0.0" bpmSync="0.0" internalBpm="120.0" mainSubdivision="7.0" tap1_mult="1.0" tap1_mix="1.0" tap1_subdiv="7.0" tap2_mult="1.0" tap2_mix="0.0" tap2_subdiv="7.0" tap3_mult="1.0" tap3_mix="0.0" tap3_subdiv="7.0" tap4_mult="1.0" tap4_mix="0.0" tap4_subdiv="7.0" reverseMode="0.0" reverseChunkSize="350.0" reverseFeedback="0.0" wobbleSync="0.0"/>)";
+
+    juce::String cyberpunkPingPongXml = R"(<?xml version="1.0" encoding="UTF-8"?>
+<PARAMETERS delayTime="500.0" feedback="0.5" mix="0.5" bypass="0.0" stepSize="0.015" clockJitter="2.0" integratorLag="1.0" reconstructionCutoff="4500.0" integratorLeak="0.99" character="40.0" dynamicResponse="0.4" wobbleDepth="12.0" wobbleRate="0.5" feedbackTone="5000.0" stereoSpread="100.0" freeze="0.0" coupledMode="1.0" envAttack="0.005" envRelease="0.05" circuitType="0.0" minStepSize="0.002" maxStepSize="0.12" syllabicTime="20.0" numTaps="3.0" tapDecay="1.0" bpmSync="1.0" internalBpm="120.0" mainSubdivision="2.0" tap1_mult="0.5" tap1_mix="0.9" tap1_subdiv="0.0" tap2_mult="0.75" tap2_mix="0.8" tap2_subdiv="1.0" tap3_mult="1.0" tap3_mix="0.7" tap3_subdiv="2.0" tap4_mult="1.0" tap4_mix="0.0" tap4_subdiv="7.0" reverseMode="0.0" reverseChunkSize="350.0" reverseFeedback="0.0" wobbleSync="1.0"/>)";
+
     createPresetFromXml("Default", defaultXml);
     createPresetFromXml("Vintage Slapback", slapbackXml);
     createPresetFromXml("Lo-Fi Wobble", lofiXml);
     createPresetFromXml("Rhythmic Tap Dance", rhythmicXml);
     createPresetFromXml("Deep Companded Space", compandedSpaceXml);
+    
+    // Novas adições de Sound Design
+    createPresetFromXml("Ghostly Reverse", ghostlyReverseXml);
+    createPresetFromXml("Crunchy Sludge", crunchySludgeXml);
+    createPresetFromXml("Cyberpunk Ping-Pong", cyberpunkPingPongXml);
 }

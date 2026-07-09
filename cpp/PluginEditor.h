@@ -66,6 +66,19 @@ struct SliderWithLabel {
     }
 };
 
+struct LinearSliderWithLabel {
+    juce::Slider slider;
+    WebLabel label;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
+    void init(const juce::String& labelText, juce::AudioProcessorValueTreeState& apvts, const juce::String& paramId) {
+        slider.setSliderStyle(juce::Slider::LinearHorizontal);
+        slider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+        label.setText(labelText, juce::dontSendNotification);
+        label.setJustificationType(juce::Justification::centredLeft);
+        attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, paramId, slider);
+    }
+};
+
 struct ToggleWithLabel {
     juce::ToggleButton button;
     WebLabel label;
@@ -116,13 +129,32 @@ private:
     juce::Label pluginTitle;
     juce::Label presetLabel;
 
+    // Groups (Frames)
+    juce::GroupComponent groupTime{"groupTime", "Time & Rhythm"};
+    juce::GroupComponent groupMacros{"groupMacros", "Texture Macros"};
+    juce::GroupComponent groupMix{"groupMix", "Master & Output"};
+    
+    juce::GroupComponent groupTapGlobal{"groupTapGlobal", "Global Taps Settings"};
+    juce::GroupComponent groupTap1{"groupTap1", "Tap 1"};
+    juce::GroupComponent groupTap2{"groupTap2", "Tap 2"};
+    juce::GroupComponent groupTap3{"groupTap3", "Tap 3"};
+    juce::GroupComponent groupTap4{"groupTap4", "Tap 4"};
+
+    juce::GroupComponent groupEngine{"groupEngine", "1-Bit Engine Core"};
+    juce::GroupComponent groupFilters{"groupFilters", "Tone & Spread"};
+    juce::GroupComponent groupEnv{"groupEnv", "Compander Envelope"};
+    juce::GroupComponent groupLfo{"groupLfo", "Modulation (Wobble)"};
+    
+    juce::GroupComponent groupRev{"groupRev", "Reverse Settings"};
+
     // Components
     // MAIN / MACROS
-    SliderWithLabel delayTime, feedback, mix, internalBpm;
+    SliderWithLabel delayTime, feedback, mix;
+    LinearSliderWithLabel internalBpm;
     ToggleWithLabel freeze, bpmSync;
     ComboWithLabel mainSubdivision;
     
-    // Macros (Not connected to APVTS directly)
+    // Macros
     juce::Slider macroTexture;
     WebLabel labelTexture;
     juce::Slider macroMovement;
@@ -136,14 +168,14 @@ private:
     ToggleWithLabel coupledMode;
     SliderWithLabel stepSize, clockJitter, integratorLag, reconCutoff, integratorLeak, dynamicResponse, feedbackTone, stereoSpread;
     SliderWithLabel envAttack, envRelease, minStepSize, maxStepSize, syllabicTime;
-    SliderWithLabel character; // Moved to circuit
+    SliderWithLabel character;
 
     // TAPS
     SliderWithLabel numTaps, tapDecay;
     SliderWithLabel tap1Mult, tap1Mix, tap2Mult, tap2Mix, tap3Mult, tap3Mix, tap4Mult, tap4Mix;
     ComboWithLabel tap1Subdiv, tap2Subdiv, tap3Subdiv, tap4Subdiv;
 
-    // REVERSE SETTINGS (Inside Tab)
+    // REVERSE SETTINGS
     SliderWithLabel reverseChunkSize, reverseFeedback;
 
     juce::Component* mainTabComp;

@@ -17,6 +17,8 @@ WebStyleLookAndFeel::WebStyleLookAndFeel()
     setColour(juce::Slider::thumbColourId, colorNeonCyan);
     setColour(juce::Slider::rotarySliderFillColourId, colorNeonCyan.withAlpha(0.8f));
     setColour(juce::Slider::rotarySliderOutlineColourId, colorBorderDim);
+    setColour(juce::Slider::trackColourId, colorNeonCyan.withAlpha(0.3f));
+    setColour(juce::Slider::backgroundColourId, colorBorderDim);
     setColour(juce::ToggleButton::tickColourId, colorNeonRed);
     setColour(juce::ComboBox::backgroundColourId, colorPanel);
     setColour(juce::ComboBox::outlineColourId, colorBorderDim);
@@ -25,6 +27,8 @@ WebStyleLookAndFeel::WebStyleLookAndFeel()
     setColour(juce::TabbedComponent::outlineColourId, colorBorderDark);
     setColour(juce::TabbedButtonBar::tabTextColourId, colorTextMuted);
     setColour(juce::TabbedButtonBar::frontTextColourId, colorNeonCyan);
+    setColour(juce::GroupComponent::textColourId, colorNeonCyan);
+    setColour(juce::GroupComponent::outlineColourId, colorBorderDim);
 }
 
 void WebStyleLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
@@ -38,7 +42,6 @@ void WebStyleLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int
     auto rw = radius * 2.0f;
     auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
     
-    // Choose neon color based on slider name or default to cyan
     juce::Colour neonColor = colorNeonCyan;
     if (slider.getName() == "Movement" || slider.getName() == "Wobble") neonColor = colorNeonPurple;
     else if (slider.getName() == "Texture" || slider.getName() == "Drive") neonColor = colorNeonOrange;
@@ -57,7 +60,7 @@ void WebStyleLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int
     g.setColour(juce::Colour(0xff222222));
     g.strokePath(track, juce::PathStrokeType(4.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 
-    // Fill arc with Glow
+    // Fill arc
     juce::Path fill;
     fill.addCentredArc(centreX, centreY, radius, radius, 0.0f, rotaryStartAngle, angle, true);
     g.setColour(neonColor.withAlpha(0.3f));
@@ -102,7 +105,6 @@ void WebStyleLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButto
         g.setFont(juce::Font(14.0f, juce::Font::bold));
         g.drawFittedText(button.getButtonText(), bounds.withTrimmedLeft(25).toNearestInt(), juce::Justification::centred, 1);
     } else {
-        // Standard toggle
         auto fontSize = juce::jmin (13.0f, (float) button.getHeight() * 0.75f);
         auto tickWidth = fontSize * 1.1f;
         g.setColour (button.getToggleState() ? activeColor : colorBorderDim);
@@ -209,13 +211,11 @@ void OscilloscopeVisualizer::paint(juce::Graphics& g)
         pStep.lineTo(x, height - stepSizeData[i] * height);
     }
 
-    // Glow effect for Integrator
     g.setColour(WebStyleLookAndFeel::colorNeonCyan.withAlpha(0.3f));
     g.strokePath(pInt, juce::PathStrokeType(4.0f));
     g.setColour(WebStyleLookAndFeel::colorNeonCyan);
     g.strokePath(pInt, juce::PathStrokeType(1.5f));
     
-    // Step Size
     g.setColour(WebStyleLookAndFeel::colorNeonRed.withAlpha(0.6f));
     g.strokePath(pStep, juce::PathStrokeType(2.0f));
 }
@@ -228,7 +228,6 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     juce::StringArray circuits { "Discrete", "Companded" };
     auto& apvts = audioProcessor.apvts;
 
-    // Header
     pluginTitle.setText("BITLAY", juce::dontSendNotification);
     pluginTitle.setFont(juce::Font(28.0f, juce::Font::bold));
     pluginTitle.setColour(juce::Label::textColourId, WebStyleLookAndFeel::colorTextWhite);
@@ -236,19 +235,15 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     
     presetLabel.setText("Preset:", juce::dontSendNotification);
     addAndMakeVisible(presetLabel);
-    
     addAndMakeVisible(presetComboBox);
     addAndMakeVisible(savePresetButton);
     addAndMakeVisible(newPresetButton);
     savePresetButton.setButtonText("Save");
     newPresetButton.setButtonText("Save As...");
     updatePresetList();
-    
     presetComboBox.onChange = [this] { if (presetComboBox.getSelectedItemIndex() >= 0) audioProcessor.loadPreset(presetComboBox.getText()); };
     savePresetButton.onClick = [this] { audioProcessor.savePreset(presetComboBox.getText()); };
-    newPresetButton.onClick = [this] {
-        // Safe async prompt will be used instead of runModalLoop
-    };
+    newPresetButton.onClick = [this] { /* async logic placeholder */ };
 
     reverseMode.init("REVERSE", apvts, "reverseMode");
     addAndMakeVisible(reverseMode.button);
@@ -256,13 +251,13 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     addAndMakeVisible(bypass.button);
 
     // Main
-    delayTime.slider.setName("Cyan"); delayTime.init("TIME", apvts, "delayTime");
-    feedback.slider.setName("Cyan"); feedback.init("FEEDBACK", apvts, "feedback");
-    mix.slider.setName("Cyan"); mix.init("MIX", apvts, "mix");
-    internalBpm.slider.setName("Cyan"); internalBpm.init("BPM", apvts, "internalBpm");
-    bpmSync.init("SYNC", apvts, "bpmSync");
-    freeze.init("FREEZE", apvts, "freeze");
-    mainSubdivision.init("SUBDIV", apvts, "mainSubdivision", subdivs);
+    delayTime.slider.setName("Cyan"); delayTime.init("Delay Time", apvts, "delayTime");
+    feedback.slider.setName("Cyan"); feedback.init("Feedback", apvts, "feedback");
+    mix.slider.setName("Cyan"); mix.init("Dry/Wet Mix", apvts, "mix");
+    internalBpm.slider.setName("Cyan"); internalBpm.init("Tempo (BPM)", apvts, "internalBpm");
+    bpmSync.init("Sync Mode", apvts, "bpmSync");
+    freeze.init("Freeze Loop", apvts, "freeze");
+    mainSubdivision.init("Beat Subdiv", apvts, "mainSubdivision", subdivs);
 
     // Macros
     macroTexture.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
@@ -284,62 +279,74 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     labelMovement.setJustificationType(juce::Justification::centred);
 
     // Modulation
-    wobbleRate.slider.setName("Wobble"); wobbleRate.init("Wobble Rate", apvts, "wobbleRate");
-    wobbleDepth.slider.setName("Wobble"); wobbleDepth.init("Wobble Depth", apvts, "wobbleDepth");
-    wobbleSync.slider.setName("Wobble"); wobbleSync.init("Wobble Sync", apvts, "wobbleSync");
+    wobbleRate.slider.setName("Wobble"); wobbleRate.init("Mod Speed", apvts, "wobbleRate");
+    wobbleDepth.slider.setName("Wobble"); wobbleDepth.init("Mod Depth", apvts, "wobbleDepth");
+    wobbleSync.slider.setName("Wobble"); wobbleSync.init("Mod Sync", apvts, "wobbleSync");
 
     // Circuit
-    circuitType.init("Circuit", apvts, "circuitType", circuits);
-    coupledMode.init("Coupled", apvts, "coupledMode");
-    stepSize.init("Step Size", apvts, "stepSize");
-    clockJitter.init("Jitter", apvts, "clockJitter");
-    integratorLag.init("Lag", apvts, "integratorLag");
-    reconCutoff.init("Cutoff", apvts, "reconstructionCutoff");
-    integratorLeak.init("Leak", apvts, "integratorLeak");
-    dynamicResponse.init("Dyn Resp", apvts, "dynamicResponse");
-    feedbackTone.init("FB Tone", apvts, "feedbackTone");
-    stereoSpread.init("Spread", apvts, "stereoSpread");
-    envAttack.init("Env Att", apvts, "envAttack");
-    envRelease.init("Env Rel", apvts, "envRelease");
-    minStepSize.init("Min Step", apvts, "minStepSize");
-    maxStepSize.init("Max Step", apvts, "maxStepSize");
-    syllabicTime.init("Syllabic", apvts, "syllabicTime");
-    character.slider.setName("Drive"); character.init("Character", apvts, "character");
+    circuitType.init("Architecture", apvts, "circuitType", circuits);
+    coupledMode.init("Coupled Engine", apvts, "coupledMode");
+    character.slider.setName("Drive"); character.init("Pre-Amp Drive", apvts, "character");
+    stepSize.init("Delta Step", apvts, "stepSize");
+    clockJitter.init("Clock Jitter", apvts, "clockJitter");
+    integratorLag.init("Analog Lag", apvts, "integratorLag");
+    reconCutoff.init("Lowpass Freq", apvts, "reconstructionCutoff");
+    integratorLeak.init("Memory Leak", apvts, "integratorLeak");
+    dynamicResponse.init("Dynamic Resp", apvts, "dynamicResponse");
+    feedbackTone.init("Echo Tone", apvts, "feedbackTone");
+    stereoSpread.init("Stereo Width", apvts, "stereoSpread");
+    
+    envAttack.init("Env Attack", apvts, "envAttack");
+    envRelease.init("Env Release", apvts, "envRelease");
+    minStepSize.init("Min Delta", apvts, "minStepSize");
+    maxStepSize.init("Max Delta", apvts, "maxStepSize");
+    syllabicTime.init("Syllabic Speed", apvts, "syllabicTime");
 
     // Taps
-    numTaps.init("Num Taps", apvts, "numTaps");
-    tapDecay.init("Tap Decay", apvts, "tapDecay");
+    numTaps.init("Active Taps", apvts, "numTaps");
+    tapDecay.init("Volume Decay", apvts, "tapDecay");
     
-    tap1Mult.init("T1 Mult", apvts, "tap1_mult"); tap1Mix.init("T1 Mix", apvts, "tap1_mix"); tap1Subdiv.init("T1 Sub", apvts, "tap1_subdiv", subdivs);
-    tap2Mult.init("T2 Mult", apvts, "tap2_mult"); tap2Mix.init("T2 Mix", apvts, "tap2_mix"); tap2Subdiv.init("T2 Sub", apvts, "tap2_subdiv", subdivs);
-    tap3Mult.init("T3 Mult", apvts, "tap3_mult"); tap3Mix.init("T3 Mix", apvts, "tap3_mix"); tap3Subdiv.init("T3 Sub", apvts, "tap3_subdiv", subdivs);
-    tap4Mult.init("T4 Mult", apvts, "tap4_mult"); tap4Mix.init("T4 Mix", apvts, "tap4_mix"); tap4Subdiv.init("T4 Sub", apvts, "tap4_subdiv", subdivs);
+    tap1Mult.init("Time Mult", apvts, "tap1_mult"); tap1Mix.init("Tap Level", apvts, "tap1_mix"); tap1Subdiv.init("Subdiv", apvts, "tap1_subdiv", subdivs);
+    tap2Mult.init("Time Mult", apvts, "tap2_mult"); tap2Mix.init("Tap Level", apvts, "tap2_mix"); tap2Subdiv.init("Subdiv", apvts, "tap2_subdiv", subdivs);
+    tap3Mult.init("Time Mult", apvts, "tap3_mult"); tap3Mix.init("Tap Level", apvts, "tap3_mix"); tap3Subdiv.init("Subdiv", apvts, "tap3_subdiv", subdivs);
+    tap4Mult.init("Time Mult", apvts, "tap4_mult"); tap4Mix.init("Tap Level", apvts, "tap4_mix"); tap4Subdiv.init("Subdiv", apvts, "tap4_subdiv", subdivs);
 
     // Reverse Details
-    reverseChunkSize.init("Chunk Size", apvts, "reverseChunkSize");
-    reverseFeedback.init("Rev Feedback", apvts, "reverseFeedback");
+    reverseChunkSize.init("Buffer Size", apvts, "reverseChunkSize");
+    reverseFeedback.init("Accumulate", apvts, "reverseFeedback");
 
     mainTabComp = new juce::Component();
     tapsTabComp = new juce::Component();
     circuitTabComp = new juce::Component();
     reverseTabComp = new juce::Component();
 
-    auto addComponents = [](juce::Component* p, std::vector<juce::Component*> c) { for (auto* comp : c) p->addAndMakeVisible(comp); };
+    auto addGroup = [](juce::Component* p, juce::GroupComponent* g) { p->addAndMakeVisible(g); };
+    
+    // Add groups FIRST so they render behind
+    addGroup(mainTabComp, &groupTime); addGroup(mainTabComp, &groupMacros); addGroup(mainTabComp, &groupMix);
+    addGroup(tapsTabComp, &groupTapGlobal); addGroup(tapsTabComp, &groupTap1); addGroup(tapsTabComp, &groupTap2); addGroup(tapsTabComp, &groupTap3); addGroup(tapsTabComp, &groupTap4);
+    addGroup(circuitTabComp, &groupEngine); addGroup(circuitTabComp, &groupFilters); addGroup(circuitTabComp, &groupEnv); addGroup(circuitTabComp, &groupLfo);
+    addGroup(reverseTabComp, &groupRev);
 
-    addComponents(mainTabComp, {&delayTime.slider, &delayTime.label, &feedback.slider, &feedback.label, &mix.slider, &mix.label, &internalBpm.slider, &internalBpm.label, &mainSubdivision.combo, &mainSubdivision.label, &bpmSync.button, &freeze.button, &macroTexture, &labelTexture, &macroMovement, &labelMovement});
-    addComponents(circuitTabComp, {&circuitType.combo, &circuitType.label, &coupledMode.button, &character.slider, &character.label, &stepSize.slider, &stepSize.label, &clockJitter.slider, &clockJitter.label, &integratorLag.slider, &integratorLag.label, &reconCutoff.slider, &reconCutoff.label, &integratorLeak.slider, &integratorLeak.label, &dynamicResponse.slider, &dynamicResponse.label, &feedbackTone.slider, &feedbackTone.label, &stereoSpread.slider, &stereoSpread.label, &envAttack.slider, &envAttack.label, &envRelease.slider, &envRelease.label, &minStepSize.slider, &minStepSize.label, &maxStepSize.slider, &maxStepSize.label, &syllabicTime.slider, &syllabicTime.label, &wobbleRate.slider, &wobbleRate.label, &wobbleDepth.slider, &wobbleDepth.label, &wobbleSync.slider, &wobbleSync.label});
-    addComponents(tapsTabComp, {&numTaps.slider, &numTaps.label, &tapDecay.slider, &tapDecay.label, &tap1Mult.slider, &tap1Mult.label, &tap1Mix.slider, &tap1Mix.label, &tap1Subdiv.combo, &tap1Subdiv.label, &tap2Mult.slider, &tap2Mult.label, &tap2Mix.slider, &tap2Mix.label, &tap2Subdiv.combo, &tap2Subdiv.label, &tap3Mult.slider, &tap3Mult.label, &tap3Mix.slider, &tap3Mix.label, &tap3Subdiv.combo, &tap3Subdiv.label, &tap4Mult.slider, &tap4Mult.label, &tap4Mix.slider, &tap4Mix.label, &tap4Subdiv.combo, &tap4Subdiv.label});
-    addComponents(reverseTabComp, {&reverseChunkSize.slider, &reverseChunkSize.label, &reverseFeedback.slider, &reverseFeedback.label});
+    auto addComps = [](juce::Component* p, std::vector<juce::Component*> c) { for (auto* comp : c) p->addAndMakeVisible(comp); };
+
+    addComps(mainTabComp, {&delayTime.slider, &delayTime.label, &feedback.slider, &feedback.label, &mix.slider, &mix.label, &internalBpm.slider, &internalBpm.label, &mainSubdivision.combo, &mainSubdivision.label, &bpmSync.button, &freeze.button, &macroTexture, &labelTexture, &macroMovement, &labelMovement});
+    
+    addComps(circuitTabComp, {&circuitType.combo, &circuitType.label, &coupledMode.button, &character.slider, &character.label, &stepSize.slider, &stepSize.label, &clockJitter.slider, &clockJitter.label, &integratorLag.slider, &integratorLag.label, &reconCutoff.slider, &reconCutoff.label, &integratorLeak.slider, &integratorLeak.label, &dynamicResponse.slider, &dynamicResponse.label, &feedbackTone.slider, &feedbackTone.label, &stereoSpread.slider, &stereoSpread.label, &envAttack.slider, &envAttack.label, &envRelease.slider, &envRelease.label, &minStepSize.slider, &minStepSize.label, &maxStepSize.slider, &maxStepSize.label, &syllabicTime.slider, &syllabicTime.label, &wobbleRate.slider, &wobbleRate.label, &wobbleDepth.slider, &wobbleDepth.label, &wobbleSync.slider, &wobbleSync.label});
+    
+    addComps(tapsTabComp, {&numTaps.slider, &numTaps.label, &tapDecay.slider, &tapDecay.label, &tap1Mult.slider, &tap1Mult.label, &tap1Mix.slider, &tap1Mix.label, &tap1Subdiv.combo, &tap1Subdiv.label, &tap2Mult.slider, &tap2Mult.label, &tap2Mix.slider, &tap2Mix.label, &tap2Subdiv.combo, &tap2Subdiv.label, &tap3Mult.slider, &tap3Mult.label, &tap3Mix.slider, &tap3Mix.label, &tap3Subdiv.combo, &tap3Subdiv.label, &tap4Mult.slider, &tap4Mult.label, &tap4Mix.slider, &tap4Mix.label, &tap4Subdiv.combo, &tap4Subdiv.label});
+    
+    addComps(reverseTabComp, {&reverseChunkSize.slider, &reverseChunkSize.label, &reverseFeedback.slider, &reverseFeedback.label});
 
     tabs.addTab("1. MACROS & CORE", WebStyleLookAndFeel::colorBgDark, mainTabComp, true);
     tabs.addTab("2. MULTI-TAP ENGINE", WebStyleLookAndFeel::colorBgDark, tapsTabComp, true);
-    tabs.addTab("3. CVSD MODULATION", WebStyleLookAndFeel::colorBgDark, circuitTabComp, true);
+    tabs.addTab("3. ADVANCED CVSD", WebStyleLookAndFeel::colorBgDark, circuitTabComp, true);
     tabs.addTab("4. REVERSE SETUP", WebStyleLookAndFeel::colorBgDark, reverseTabComp, true);
 
     addAndMakeVisible(tabs);
     addAndMakeVisible(scope);
 
-    setSize (900, 650);
+    setSize (1000, 720);
 }
 
 BitlayAudioProcessorEditor::~BitlayAudioProcessorEditor() { juce::LookAndFeel::setDefaultLookAndFeel(nullptr); }
@@ -349,7 +356,6 @@ void BitlayAudioProcessorEditor::paint (juce::Graphics& g)
     juce::ColourGradient bgGrad(juce::Colour(0xff121218), 0, 0, juce::Colour(0xff08080c), 0, (float)getHeight(), false);
     g.setGradientFill(bgGrad);
     g.fillAll();
-    // Subtle grid could go here
 }
 
 void BitlayAudioProcessorEditor::updatePresetList()
@@ -385,19 +391,19 @@ void BitlayAudioProcessorEditor::resized()
     auto headerArea = area.removeFromTop(60);
     pluginTitle.setBounds(headerArea.removeFromLeft(150));
     
-    auto presetArea = headerArea.removeFromLeft(300).reduced(0, 10);
-    presetLabel.setBounds(presetArea.removeFromLeft(60));
-    presetComboBox.setBounds(presetArea.removeFromLeft(160));
-    savePresetButton.setBounds(presetArea.removeFromLeft(40).reduced(2));
-    newPresetButton.setBounds(presetArea.removeFromLeft(40).reduced(2));
+    auto presetArea = headerArea.removeFromLeft(420).reduced(0, 10);
+    presetLabel.setBounds(presetArea.removeFromLeft(55));
+    presetComboBox.setBounds(presetArea.removeFromLeft(150));
+    savePresetButton.setBounds(presetArea.removeFromLeft(90).reduced(2)); // Buttons are now larger
+    newPresetButton.setBounds(presetArea.removeFromLeft(100).reduced(2)); // Much larger
     
     headerArea.removeFromLeft(20);
-    reverseMode.button.setBounds(headerArea.removeFromLeft(120).reduced(0, 5));
+    reverseMode.button.setBounds(headerArea.removeFromLeft(140).reduced(0, 5));
     headerArea.removeFromLeft(20);
-    bypass.button.setBounds(headerArea.removeFromLeft(80).reduced(0, 10));
+    bypass.button.setBounds(headerArea.removeFromLeft(100).reduced(0, 10));
 
     area.removeFromTop(10);
-    scope.setBounds(area.removeFromTop(160));
+    scope.setBounds(area.removeFromTop(180));
     area.removeFromTop(15);
     tabs.setBounds(area);
 
@@ -407,43 +413,78 @@ void BitlayAudioProcessorEditor::resized()
     };
     auto placeCombo = [&](ComboWithLabel& cwl, int x, int y, int bw=80) {
         cwl.combo.setBounds(x, y, bw, 24);
-        cwl.label.setBounds(x, y - 20, bw, 20);
+        cwl.label.setBounds(x, y - 24, bw, 20);
     };
     auto placeToggle = [&](ToggleWithLabel& twl, int x, int y, int bw=80) { twl.button.setBounds(x, y, bw, 24); };
 
-    // MAIN TAB (Macros & Core)
-    placeKnob(delayTime, 40, 40, 100, 110);
-    placeKnob(feedback, 160, 40, 100, 110);
-    placeCombo(mainSubdivision, 40, 180, 80);
-    placeKnob(internalBpm, 140, 160, 80, 80);
-    placeToggle(bpmSync, 240, 180, 80);
-    placeToggle(freeze, 340, 180, 80);
-
-    macroTexture.setBounds(340, 40, 100, 90);
-    labelTexture.setBounds(340, 130, 100, 20);
-
-    macroMovement.setBounds(500, 40, 100, 90);
-    labelMovement.setBounds(500, 130, 100, 20);
+    // MAIN TAB
+    groupTime.setBounds(10, 10, 360, 240);
+    placeKnob(delayTime, 30, 50, 100, 110);
+    placeKnob(feedback, 150, 50, 100, 110);
+    placeCombo(mainSubdivision, 260, 80, 90);
     
-    placeKnob(mix, 660, 40, 100, 110);
+    internalBpm.label.setBounds(30, 180, 100, 20);
+    internalBpm.slider.setBounds(130, 180, 200, 24); // Linear slider
+    
+    placeToggle(bpmSync, 30, 210, 100);
+    placeToggle(freeze, 150, 210, 100);
+
+    groupMacros.setBounds(390, 10, 320, 240);
+    macroTexture.setBounds(430, 80, 100, 90);
+    labelTexture.setBounds(430, 170, 100, 20);
+    macroMovement.setBounds(560, 80, 100, 90);
+    labelMovement.setBounds(560, 170, 100, 20);
+    
+    groupMix.setBounds(730, 10, 200, 240);
+    placeKnob(mix, 780, 80, 100, 110);
 
     // TAPS TAB
-    placeKnob(numTaps, 20, 20);
-    placeKnob(tapDecay, 120, 20);
-    int ty = 120;
-    placeKnob(tap1Mult, 20, ty); placeKnob(tap1Mix, 100, ty); placeCombo(tap1Subdiv, 180, ty+30, 70);
-    placeKnob(tap2Mult, 270, ty); placeKnob(tap2Mix, 350, ty); placeCombo(tap2Subdiv, 430, ty+30, 70);
-    placeKnob(tap3Mult, 520, ty); placeKnob(tap3Mix, 600, ty); placeCombo(tap3Subdiv, 680, ty+30, 70);
-    placeKnob(tap4Mult, 20, ty+100); placeKnob(tap4Mix, 100, ty+100); placeCombo(tap4Subdiv, 180, ty+130, 70);
+    groupTapGlobal.setBounds(10, 10, 200, 240);
+    placeKnob(numTaps, 30, 60);
+    placeKnob(tapDecay, 110, 60);
+    
+    int tx = 230;
+    auto setupTapBox = [&](juce::GroupComponent& group, SliderWithLabel& mult, SliderWithLabel& mx, ComboWithLabel& sub, int startX) {
+        group.setBounds(startX, 10, 160, 240);
+        placeKnob(mult, startX + 10, 50, 60, 80);
+        placeKnob(mx, startX + 90, 50, 60, 80);
+        placeCombo(sub, startX + 40, 170, 80);
+    };
+    setupTapBox(groupTap1, tap1Mult, tap1Mix, tap1Subdiv, tx);
+    setupTapBox(groupTap2, tap2Mult, tap2Mix, tap2Subdiv, tx + 180);
+    setupTapBox(groupTap3, tap3Mult, tap3Mix, tap3Subdiv, tx + 360);
+    setupTapBox(groupTap4, tap4Mult, tap4Mix, tap4Subdiv, tx + 540);
 
-    // CIRCUIT TAB (Modulation & CVSD)
-    placeCombo(circuitType, 20, 40); placeToggle(coupledMode, 120, 40);
-    placeKnob(character, 200, 20); placeKnob(stepSize, 280, 20); placeKnob(clockJitter, 360, 20); placeKnob(integratorLag, 440, 20); placeKnob(reconCutoff, 520, 20);
-    placeKnob(integratorLeak, 600, 20); placeKnob(dynamicResponse, 680, 20); placeKnob(feedbackTone, 760, 20);
-    placeKnob(stereoSpread, 20, 120); placeKnob(envAttack, 100, 120); placeKnob(envRelease, 180, 120); placeKnob(minStepSize, 260, 120); placeKnob(maxStepSize, 340, 120); placeKnob(syllabicTime, 420, 120);
-    placeKnob(wobbleRate, 500, 120); placeKnob(wobbleDepth, 580, 120); placeKnob(wobbleSync, 660, 120);
+    // CIRCUIT TAB
+    groupEngine.setBounds(10, 10, 340, 120);
+    placeCombo(circuitType, 30, 50, 100);
+    placeToggle(coupledMode, 150, 50, 120);
+    placeKnob(character, 30, 60, 60, 60);
+    placeKnob(stepSize, 100, 60, 60, 60);
+    placeKnob(minStepSize, 170, 60, 60, 60);
+    placeKnob(maxStepSize, 240, 60, 60, 60);
+    
+    groupFilters.setBounds(370, 10, 380, 120);
+    placeKnob(integratorLag, 390, 50, 60, 60);
+    placeKnob(reconCutoff, 460, 50, 60, 60);
+    placeKnob(feedbackTone, 530, 50, 60, 60);
+    placeKnob(stereoSpread, 600, 50, 60, 60);
+    placeKnob(clockJitter, 670, 50, 60, 60);
+
+    groupEnv.setBounds(10, 140, 460, 120);
+    placeKnob(envAttack, 30, 175, 70, 70);
+    placeKnob(envRelease, 110, 175, 70, 70);
+    placeKnob(syllabicTime, 190, 175, 70, 70);
+    placeKnob(integratorLeak, 270, 175, 70, 70);
+    placeKnob(dynamicResponse, 350, 175, 70, 70);
+
+    groupLfo.setBounds(490, 140, 260, 120);
+    placeKnob(wobbleRate, 510, 175, 70, 70);
+    placeKnob(wobbleDepth, 590, 175, 70, 70);
+    placeKnob(wobbleSync, 670, 175, 70, 70);
 
     // REVERSE TAB
-    placeKnob(reverseChunkSize, 40, 40);
-    placeKnob(reverseFeedback, 140, 40);
+    groupRev.setBounds(10, 10, 300, 160);
+    placeKnob(reverseChunkSize, 30, 50);
+    placeKnob(reverseFeedback, 130, 50);
 }
