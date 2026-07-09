@@ -12,6 +12,9 @@ public:
     void drawToggleButton (juce::Graphics& g, juce::ToggleButton& button, 
                            bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
+    void drawTabButton (juce::TabBarButton& button, juce::Graphics& g, bool isMouseOver, bool isMouseDown) override;
+    void drawComboBox (juce::Graphics& g, int width, int height, bool isButtonDown, int buttonX, int buttonY, int buttonW, int buttonH, juce::ComboBox& box) override;
+
     juce::Font getLabelFont (juce::Label& label) override;
     juce::Font getComboBoxFont (juce::ComboBox& box) override;
 
@@ -22,6 +25,12 @@ public:
     static const juce::Colour colorBorderDim;
     static const juce::Colour colorTextWhite;
     static const juce::Colour colorTextMuted;
+    
+    // Neon Colors
+    static const juce::Colour colorNeonCyan;
+    static const juce::Colour colorNeonOrange;
+    static const juce::Colour colorNeonPurple;
+    static const juce::Colour colorNeonRed;
 };
 
 class WebLabel : public juce::Label
@@ -79,7 +88,7 @@ struct ComboWithLabel {
     }
 };
 
-class BitlayAudioProcessorEditor  : public juce::AudioProcessorEditor
+class BitlayAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Slider::Listener
 {
 public:
     BitlayAudioProcessorEditor (BitlayAudioProcessor&);
@@ -87,6 +96,8 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     void updatePresetList();
+    void sliderValueChanged (juce::Slider* slider) override;
+    
 private:
     BitlayAudioProcessor& audioProcessor;
     WebStyleLookAndFeel webLookAndFeel;
@@ -99,37 +110,47 @@ private:
     juce::TextButton savePresetButton;
     juce::TextButton newPresetButton;
 
-    // Components
-    // MAIN
-    SliderWithLabel delayTime, feedback, mix, character, internalBpm;
-    ToggleWithLabel bypass, freeze, bpmSync;
-    ComboWithLabel mainSubdivision;
+    // Global Top Bar
+    ToggleWithLabel reverseMode;
+    ToggleWithLabel bypass;
+    juce::Label pluginTitle;
+    juce::Label presetLabel;
 
-    // LFO
+    // Components
+    // MAIN / MACROS
+    SliderWithLabel delayTime, feedback, mix, internalBpm;
+    ToggleWithLabel freeze, bpmSync;
+    ComboWithLabel mainSubdivision;
+    
+    // Macros (Not connected to APVTS directly)
+    juce::Slider macroTexture;
+    WebLabel labelTexture;
+    juce::Slider macroMovement;
+    WebLabel labelMovement;
+
+    // MODULATION (LFO)
     SliderWithLabel wobbleRate, wobbleDepth, wobbleSync;
 
-    // CIRCUIT
+    // CIRCUIT (CVSD)
     ComboWithLabel circuitType;
     ToggleWithLabel coupledMode;
     SliderWithLabel stepSize, clockJitter, integratorLag, reconCutoff, integratorLeak, dynamicResponse, feedbackTone, stereoSpread;
     SliderWithLabel envAttack, envRelease, minStepSize, maxStepSize, syllabicTime;
+    SliderWithLabel character; // Moved to circuit
 
     // TAPS
     SliderWithLabel numTaps, tapDecay;
     SliderWithLabel tap1Mult, tap1Mix, tap2Mult, tap2Mix, tap3Mult, tap3Mix, tap4Mult, tap4Mix;
     ComboWithLabel tap1Subdiv, tap2Subdiv, tap3Subdiv, tap4Subdiv;
 
-    // REVERSE
-    ToggleWithLabel reverseMode;
+    // REVERSE SETTINGS (Inside Tab)
     SliderWithLabel reverseChunkSize, reverseFeedback;
 
-
-
     juce::Component* mainTabComp;
-    juce::Component* lfoTabComp;
-    juce::Component* circuitTabComp;
     juce::Component* tapsTabComp;
+    juce::Component* circuitTabComp;
     juce::Component* reverseTabComp;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BitlayAudioProcessorEditor)
 };
+

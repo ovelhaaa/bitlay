@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a24" />
+      <stop offset="100%" stop-color="#0f0f13" />
+    </linearGradient>
+    <linearGradient id="panelGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2a2a36" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#1e1e28" stop-opacity="0.8"/>
+    </linearGradient>
+    
+    <!-- Knob Gradient -->
+    <linearGradient id="knobBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3a3a4c" />
+      <stop offset="100%" stop-color="#1e1e28" />
+    </linearGradient>
+    
+    <!-- Glow Effects -->
+    <filter id="neonGlowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="neonGlowOrange" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="neonGlowPurple" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    
+    <!-- Pattern -->
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <rect width="20" height="20" fill="none" />
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ffffff" stroke-width="0.5" stroke-opacity="0.03" />
+    </pattern>
+  </defs>
+
+  <!-- Main Background -->
+  <rect width="1000" height="700" fill="url(#bgGradient)" rx="16" />
+  <rect width="1000" height="700" fill="url(#grid)" rx="16" />
+  
+  <!-- Outer Border -->
+  <rect width="998" height="698" x="1" y="1" fill="none" stroke="#3a3a4c" stroke-width="2" rx="16" />
+
+  <!-- Header Section -->
+  <rect x="20" y="20" width="960" height="60" fill="url(#panelGradient)" rx="8" stroke="#333344" stroke-width="1"/>
+  <text x="40" y="56" font-family="sans-serif" font-weight="900" font-size="28" fill="#ffffff" letter-spacing="2">BITLAY</text>
+  <text x="160" y="54" font-family="monospace" font-weight="bold" font-size="14" fill="#00e5ff" filter="url(#neonGlowCyan)">CVSD DELAY</text>
+  
+  <!-- Preset Browser Mockup -->
+  <rect x="350" y="30" width="300" height="40" fill="#15151c" rx="6" stroke="#00e5ff" stroke-width="1" stroke-opacity="0.5"/>
+  <text x="400" y="55" font-family="sans-serif" font-size="14" fill="#aaaaaa">Preset: </text>
+  <text x="455" y="55" font-family="sans-serif" font-weight="bold" font-size="14" fill="#ffffff">Lofi Tape Echo</text>
+  <polygon points="620,45 630,45 625,52" fill="#00e5ff" />
+
+  <!-- Global Controls (Header Right) -->
+  <rect x="830" y="32" width="60" height="36" fill="#15151c" rx="18" stroke="#333344"/>
+  <circle cx="848" cy="50" r="14" fill="#00e5ff" filter="url(#neonGlowCyan)"/>
+  <text x="844" y="54" font-family="sans-serif" font-weight="bold" font-size="10" fill="#111">ON</text>
+  
+  <rect x="900" y="32" width="60" height="36" fill="#15151c" rx="6" stroke="#333344"/>
+  <text x="918" y="54" font-family="sans-serif" font-size="12" fill="#fff">INIT</text>
+
+  <!-- Visualizer / Main Display -->
+  <rect x="20" y="100" width="960" height="220" fill="#0a0a0f" rx="12" stroke="#222233" stroke-width="2"/>
+  
+  <!-- Waveform Mockup -->
+  <path d="M 40,210 Q 80,150 120,210 T 200,210 T 280,210 T 360,210 T 440,210 T 520,210 T 600,210 T 680,210 T 760,210 T 840,210 T 920,210" fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="2"/>
+  <path d="M 40,210 Q 70,120 100,210 T 160,210 T 220,210 T 280,210 T 340,210 T 400,210" fill="none" stroke="#00e5ff" stroke-width="3" filter="url(#neonGlowCyan)"/>
+  
+  <!-- Tap Nodes on Timeline -->
+  <line x1="40" y1="260" x2="960" y2="260" stroke="#333344" stroke-width="4" stroke-linecap="round"/>
+  <!-- Tap 1 -->
+  <circle cx="200" cy="260" r="16" fill="#15151c" stroke="#00e5ff" stroke-width="3" filter="url(#neonGlowCyan)"/>
+  <text x="194" y="264" font-family="sans-serif" font-weight="bold" font-size="12" fill="#fff">T1</text>
+  <!-- Tap 2 -->
+  <circle cx="450" cy="260" r="16" fill="#15151c" stroke="#ff3366" stroke-width="3" filter="url(#neonGlowOrange)"/>
+  <text x="444" y="264" font-family="sans-serif" font-weight="bold" font-size="12" fill="#fff">T2</text>
+  <!-- Tap 3 -->
+  <circle cx="700" cy="260" r="16" fill="#15151c" stroke="#aa33ff" stroke-width="3" filter="url(#neonGlowPurple)"/>
+  <text x="694" y="264" font-family="sans-serif" font-weight="bold" font-size="12" fill="#fff">T3</text>
+
+  <!-- UI Sections -->
+  
+  <!-- 1. Delay Engine -->
+  <rect x="20" y="340" width="300" height="340" fill="url(#panelGradient)" rx="12" stroke="#333344" stroke-width="1"/>
+  <text x="40" y="375" font-family="sans-serif" font-weight="bold" font-size="14" fill="#ffffff" letter-spacing="1">DELAY CORE</text>
+  <line x1="40" y1="390" x2="280" y2="390" stroke="#00e5ff" stroke-width="2" stroke-opacity="0.5"/>
+  
+  <!-- Knob: Time -->
+  <g transform="translate(90, 460)">
+    <circle cx="0" cy="0" r="36" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -25,25 A 36 36 0 1 1 25,25" fill="none" stroke="#333" stroke-width="6" stroke-linecap="round"/>
+    <path d="M -25,25 A 36 36 0 0 1 20,-28" fill="none" stroke="#00e5ff" stroke-width="6" stroke-linecap="round" filter="url(#neonGlowCyan)"/>
+    <line x1="0" y1="0" x2="16" y2="-22" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <text x="0" y="55" font-family="sans-serif" font-size="12" fill="#aaa" text-anchor="middle">TIME</text>
+    <text x="0" y="70" font-family="monospace" font-weight="bold" font-size="12" fill="#fff" text-anchor="middle">350 ms</text>
+  </g>
+
+  <!-- Knob: Feedback -->
+  <g transform="translate(230, 460)">
+    <circle cx="0" cy="0" r="36" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -25,25 A 36 36 0 1 1 25,25" fill="none" stroke="#333" stroke-width="6" stroke-linecap="round"/>
+    <path d="M -25,25 A 36 36 0 0 1 0,-36" fill="none" stroke="#00e5ff" stroke-width="6" stroke-linecap="round" filter="url(#neonGlowCyan)"/>
+    <line x1="0" y1="0" x2="0" y2="-28" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <text x="0" y="55" font-family="sans-serif" font-size="12" fill="#aaa" text-anchor="middle">FEEDBACK</text>
+    <text x="0" y="70" font-family="monospace" font-weight="bold" font-size="12" fill="#fff" text-anchor="middle">60 %</text>
+  </g>
+
+  <!-- Sync / Subdiv Toggle -->
+  <rect x="40" y="580" width="240" height="40" fill="#15151c" rx="6" stroke="#333344"/>
+  <rect x="44" y="584" width="76" height="32" fill="#00e5ff" fill-opacity="0.2" rx="4"/>
+  <text x="82" y="605" font-family="sans-serif" font-weight="bold" font-size="12" fill="#00e5ff" text-anchor="middle">SYNC</text>
+  <text x="160" y="605" font-family="sans-serif" font-size="12" fill="#aaa" text-anchor="middle">FREE</text>
+  <text x="240" y="605" font-family="sans-serif" font-size="12" fill="#aaa" text-anchor="middle">TAP</text>
+
+  <!-- 2. Degradation & Drive -->
+  <rect x="340" y="340" width="320" height="340" fill="url(#panelGradient)" rx="12" stroke="#333344" stroke-width="1"/>
+  <text x="360" y="375" font-family="sans-serif" font-weight="bold" font-size="14" fill="#ffffff" letter-spacing="1">DEGRADATION</text>
+  <line x1="360" y1="390" x2="640" y2="390" stroke="#ff9900" stroke-width="2" stroke-opacity="0.5"/>
+
+  <!-- Knob: Drive -->
+  <g transform="translate(420, 460)">
+    <circle cx="0" cy="0" r="30" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -21,21 A 30 30 0 1 1 21,21" fill="none" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -21,21 A 30 30 0 0 1 10,-28" fill="none" stroke="#ff9900" stroke-width="5" stroke-linecap="round" filter="url(#neonGlowOrange)"/>
+    <line x1="0" y1="0" x2="8" y2="-22" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <text x="0" y="50" font-family="sans-serif" font-size="11" fill="#aaa" text-anchor="middle">DRIVE</text>
+    <text x="0" y="65" font-family="monospace" font-weight="bold" font-size="11" fill="#fff" text-anchor="middle">4.2 dB</text>
+  </g>
+  
+  <!-- Knob: Filter -->
+  <g transform="translate(580, 460)">
+    <circle cx="0" cy="0" r="30" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -21,21 A 30 30 0 1 1 21,21" fill="none" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -21,21 A 30 30 0 0 1 -10,-28" fill="none" stroke="#ff9900" stroke-width="5" stroke-linecap="round" filter="url(#neonGlowOrange)"/>
+    <line x1="0" y1="0" x2="-8" y2="-22" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <text x="0" y="50" font-family="sans-serif" font-size="11" fill="#aaa" text-anchor="middle">CUTOFF</text>
+    <text x="0" y="65" font-family="monospace" font-weight="bold" font-size="11" fill="#fff" text-anchor="middle">3.5 kHz</text>
+  </g>
+
+  <!-- Circuit Mode Switch -->
+  <text x="500" y="570" font-family="sans-serif" font-size="11" fill="#aaa" text-anchor="middle">CIRCUIT TYPE</text>
+  <rect x="420" y="580" width="160" height="36" fill="#15151c" rx="18" stroke="#333344"/>
+  <rect x="424" y="584" width="76" height="28" fill="#ff9900" fill-opacity="0.2" rx="14"/>
+  <text x="462" y="602" font-family="sans-serif" font-weight="bold" font-size="11" fill="#ff9900" text-anchor="middle">DISCRETE</text>
+  <text x="542" y="602" font-family="sans-serif" font-size="11" fill="#aaa" text-anchor="middle">COMPANDED</text>
+
+  <!-- 3. Modulation & Mix -->
+  <rect x="680" y="340" width="300" height="340" fill="url(#panelGradient)" rx="12" stroke="#333344" stroke-width="1"/>
+  <text x="700" y="375" font-family="sans-serif" font-weight="bold" font-size="14" fill="#ffffff" letter-spacing="1">MOD &amp; OUTPUT</text>
+  <line x1="700" y1="390" x2="940" y2="390" stroke="#aa33ff" stroke-width="2" stroke-opacity="0.5"/>
+
+  <!-- Knob: Wobble Rate -->
+  <g transform="translate(750, 460)">
+    <circle cx="0" cy="0" r="30" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -21,21 A 30 30 0 1 1 21,21" fill="none" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -21,21 A 30 30 0 0 1 -15,-25" fill="none" stroke="#aa33ff" stroke-width="5" stroke-linecap="round" filter="url(#neonGlowPurple)"/>
+    <line x1="0" y1="0" x2="-12" y2="-20" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <text x="0" y="50" font-family="sans-serif" font-size="11" fill="#aaa" text-anchor="middle">WOBBLE RATE</text>
+  </g>
+
+  <!-- Knob: Wobble Depth -->
+  <g transform="translate(890, 460)">
+    <circle cx="0" cy="0" r="30" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -21,21 A 30 30 0 1 1 21,21" fill="none" stroke="#333" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -21,21 A 30 30 0 0 1 0,-30" fill="none" stroke="#aa33ff" stroke-width="5" stroke-linecap="round" filter="url(#neonGlowPurple)"/>
+    <line x1="0" y1="0" x2="0" y2="-24" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <text x="0" y="50" font-family="sans-serif" font-size="11" fill="#aaa" text-anchor="middle">DEPTH</text>
+  </g>
+
+  <!-- Master Mix -->
+  <text x="820" y="560" font-family="sans-serif" font-size="12" fill="#aaa" text-anchor="middle">MASTER MIX</text>
+  <rect x="720" y="580" width="200" height="24" fill="#15151c" rx="12" stroke="#333344"/>
+  <rect x="722" y="582" width="100" height="20" fill="#ffffff" fill-opacity="0.8" rx="10"/>
+  <circle cx="822" cy="592" r="14" fill="#fff" filter="url(#neonGlowCyan)"/>
+</svg>

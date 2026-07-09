@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 800" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#121218" />
+      <stop offset="100%" stop-color="#08080c" />
+    </linearGradient>
+    <linearGradient id="panelGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#242432" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#171720" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="activeTabGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#00e5ff" stop-opacity="0.0"/>
+    </linearGradient>
+    
+    <!-- Knob Gradient -->
+    <linearGradient id="knobBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#323244" />
+      <stop offset="100%" stop-color="#171720" />
+    </linearGradient>
+    
+    <!-- Glow Effects -->
+    <filter id="neonGlowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="neonGlowOrange" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="neonGlowPurple" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="neonGlowRed" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    
+    <!-- Pattern -->
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <rect width="24" height="24" fill="none" />
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ffffff" stroke-width="0.5" stroke-opacity="0.02" />
+    </pattern>
+  </defs>
+
+  <!-- Main Background -->
+  <rect width="1100" height="800" fill="url(#bgGradient)" rx="16" />
+  <rect width="1100" height="800" fill="url(#grid)" rx="16" />
+  <rect width="1098" height="798" x="1" y="1" fill="none" stroke="#2a2a3a" stroke-width="2" rx="16" />
+
+  <!-- Header Section -->
+  <rect x="30" y="30" width="1040" height="70" fill="url(#panelGradient)" rx="10" stroke="#303040" stroke-width="1"/>
+  <text x="60" y="72" font-family="sans-serif" font-weight="900" font-size="32" fill="#ffffff" letter-spacing="3">BITLAY</text>
+  <text x="210" y="68" font-family="monospace" font-weight="bold" font-size="14" fill="#00e5ff" filter="url(#neonGlowCyan)">CVSD ENGINE v1.1</text>
+  
+  <!-- Preset Browser -->
+  <rect x="400" y="40" width="300" height="50" fill="#0a0a0f" rx="8" stroke="#00e5ff" stroke-width="1" stroke-opacity="0.4"/>
+  <text x="430" y="70" font-family="sans-serif" font-size="14" fill="#888">Preset: </text>
+  <text x="490" y="70" font-family="sans-serif" font-weight="bold" font-size="16" fill="#fff">Reverse Poltergeist</text>
+  <polygon points="670,60 680,60 675,68" fill="#00e5ff" />
+
+  <!-- Global Reverse Toggle (Prominent) -->
+  <rect x="800" y="40" width="120" height="50" fill="#301015" rx="8" stroke="#ff3333" stroke-width="2"/>
+  <circle cx="820" cy="65" r="8" fill="#ff3333" filter="url(#neonGlowRed)"/>
+  <text x="840" y="70" font-family="sans-serif" font-weight="bold" font-size="14" fill="#fff">REVERSE</text>
+
+  <!-- Global Bypass -->
+  <rect x="940" y="40" width="100" height="50" fill="#0a0a0f" rx="8" stroke="#303040"/>
+  <text x="990" y="70" font-family="sans-serif" font-weight="bold" font-size="14" fill="#fff" text-anchor="middle">BYPASS</text>
+
+  <!-- Central Visualizer (Timeline & Waveform) -->
+  <rect x="30" y="130" width="1040" height="200" fill="#050508" rx="12" stroke="#222233" stroke-width="2"/>
+  <path d="M 50,230 Q 150,130 250,230 T 450,230 T 650,230 T 850,230 T 1050,230" fill="none" stroke="#00e5ff" stroke-width="3" filter="url(#neonGlowCyan)"/>
+  <path d="M 50,230 Q 120,290 190,230 T 330,230 T 470,230 T 610,230 T 750,230 T 890,230 T 1030,230" fill="none" stroke="#ff3333" stroke-width="2" stroke-opacity="0.6"/>
+  <line x1="30" y1="280" x2="1070" y2="280" stroke="#333344" stroke-width="3"/>
+  <!-- Tap Nodes -->
+  <circle cx="200" cy="280" r="14" fill="#121218" stroke="#00e5ff" stroke-width="3" filter="url(#neonGlowCyan)"/>
+  <text x="193" y="284" font-family="sans-serif" font-weight="bold" font-size="11" fill="#fff">T1</text>
+  <circle cx="450" cy="280" r="14" fill="#121218" stroke="#ff9900" stroke-width="3" filter="url(#neonGlowOrange)"/>
+  <text x="443" y="284" font-family="sans-serif" font-weight="bold" font-size="11" fill="#fff">T2</text>
+  <circle cx="750" cy="280" r="14" fill="#121218" stroke="#aa33ff" stroke-width="3" filter="url(#neonGlowPurple)"/>
+  <text x="743" y="284" font-family="sans-serif" font-weight="bold" font-size="11" fill="#fff">T3</text>
+
+  <!-- Macro / Tab Navigation -->
+  <rect x="30" y="360" width="1040" height="50" fill="#0a0a0f" rx="8" stroke="#222233"/>
+  <!-- Active Tab -->
+  <rect x="30" y="360" width="260" height="50" fill="url(#activeTabGradient)" rx="8" stroke="#00e5ff" stroke-width="2"/>
+  <text x="160" y="390" font-family="sans-serif" font-weight="bold" font-size="14" fill="#00e5ff" text-anchor="middle">1. MACROS &amp; CORE</text>
+  <!-- Inactive Tabs -->
+  <text x="420" y="390" font-family="sans-serif" font-weight="bold" font-size="14" fill="#888" text-anchor="middle">2. MULTI-TAP ENGINE</text>
+  <text x="680" y="390" font-family="sans-serif" font-weight="bold" font-size="14" fill="#888" text-anchor="middle">3. CVSD MODULATION</text>
+  <text x="940" y="390" font-family="sans-serif" font-weight="bold" font-size="14" fill="#888" text-anchor="middle">4. REVERSE SETUP</text>
+
+  <!-- Core Parameter Area (Active Tab Content) -->
+  <rect x="30" y="440" width="1040" height="330" fill="url(#panelGradient)" rx="12" stroke="#303040" stroke-width="1"/>
+  
+  <!-- Group: Time & Rhythm -->
+  <text x="60" y="480" font-family="sans-serif" font-weight="bold" font-size="14" fill="#fff" letter-spacing="1">TIME &amp; RHYTHM</text>
+  <line x1="60" y1="495" x2="300" y2="495" stroke="#00e5ff" stroke-width="2" stroke-opacity="0.5"/>
+  
+  <g transform="translate(120, 590)">
+    <circle cx="0" cy="0" r="45" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -30,30 A 45 45 0 1 1 30,30" fill="none" stroke="#222" stroke-width="8" stroke-linecap="round"/>
+    <path d="M -30,30 A 45 45 0 0 1 20,-38" fill="none" stroke="#00e5ff" stroke-width="8" stroke-linecap="round" filter="url(#neonGlowCyan)"/>
+    <line x1="0" y1="0" x2="20" y2="-28" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    <text x="0" y="65" font-family="sans-serif" font-size="13" fill="#aaa" text-anchor="middle">DELAY TIME</text>
+    <text x="0" y="85" font-family="monospace" font-weight="bold" font-size="14" fill="#fff" text-anchor="middle">1/4 D</text>
+  </g>
+
+  <g transform="translate(280, 590)">
+    <circle cx="0" cy="0" r="45" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -30,30 A 45 45 0 1 1 30,30" fill="none" stroke="#222" stroke-width="8" stroke-linecap="round"/>
+    <path d="M -30,30 A 45 45 0 0 1 -10,40" fill="none" stroke="#00e5ff" stroke-width="8" stroke-linecap="round" filter="url(#neonGlowCyan)"/>
+    <line x1="0" y1="0" x2="0" y2="-34" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    <text x="0" y="65" font-family="sans-serif" font-size="13" fill="#aaa" text-anchor="middle">FEEDBACK</text>
+    <text x="0" y="85" font-family="monospace" font-weight="bold" font-size="14" fill="#fff" text-anchor="middle">60%</text>
+  </g>
+
+  <!-- Group: Texture Macros (Aggregates Drive, Lag, Leak, Cutoff) -->
+  <text x="420" y="480" font-family="sans-serif" font-weight="bold" font-size="14" fill="#fff" letter-spacing="1">TEXTURE MACROS</text>
+  <line x1="420" y1="495" x2="660" y2="495" stroke="#ff9900" stroke-width="2" stroke-opacity="0.5"/>
+  
+  <g transform="translate(480, 590)">
+    <circle cx="0" cy="0" r="45" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -30,30 A 45 45 0 1 1 30,30" fill="none" stroke="#222" stroke-width="8" stroke-linecap="round"/>
+    <path d="M -30,30 A 45 45 0 0 1 10,-40" fill="none" stroke="#ff9900" stroke-width="8" stroke-linecap="round" filter="url(#neonGlowOrange)"/>
+    <line x1="0" y1="0" x2="8" y2="-32" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    <text x="0" y="65" font-family="sans-serif" font-size="13" fill="#aaa" text-anchor="middle">DEGRADE</text>
+    <text x="0" y="85" font-family="monospace" font-weight="bold" font-size="14" fill="#ff9900" text-anchor="middle">LO-FI</text>
+  </g>
+
+  <g transform="translate(620, 590)">
+    <circle cx="0" cy="0" r="35" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -25,25 A 35 35 0 1 1 25,25" fill="none" stroke="#222" stroke-width="6" stroke-linecap="round"/>
+    <path d="M -25,25 A 35 35 0 0 1 -15,-28" fill="none" stroke="#ff9900" stroke-width="6" stroke-linecap="round" filter="url(#neonGlowOrange)"/>
+    <line x1="0" y1="0" x2="-12" y2="-25" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <text x="0" y="55" font-family="sans-serif" font-size="11" fill="#aaa" text-anchor="middle">DRIVE</text>
+  </g>
+
+  <!-- Group: Movement & Output -->
+  <text x="780" y="480" font-family="sans-serif" font-weight="bold" font-size="14" fill="#fff" letter-spacing="1">MOVEMENT &amp; MIX</text>
+  <line x1="780" y1="495" x2="1020" y2="495" stroke="#aa33ff" stroke-width="2" stroke-opacity="0.5"/>
+
+  <g transform="translate(840, 590)">
+    <circle cx="0" cy="0" r="35" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -25,25 A 35 35 0 1 1 25,25" fill="none" stroke="#222" stroke-width="6" stroke-linecap="round"/>
+    <path d="M -25,25 A 35 35 0 0 1 10,-30" fill="none" stroke="#aa33ff" stroke-width="6" stroke-linecap="round" filter="url(#neonGlowPurple)"/>
+    <line x1="0" y1="0" x2="8" y2="-26" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <text x="0" y="55" font-family="sans-serif" font-size="11" fill="#aaa" text-anchor="middle">WOBBLE</text>
+  </g>
+
+  <g transform="translate(970, 590)">
+    <circle cx="0" cy="0" r="45" fill="url(#knobBody)" stroke="#111" stroke-width="2"/>
+    <path d="M -30,30 A 45 45 0 1 1 30,30" fill="none" stroke="#222" stroke-width="8" stroke-linecap="round"/>
+    <path d="M -30,30 A 45 45 0 0 1 0,-42" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" filter="url(#neonGlowCyan)"/>
+    <line x1="0" y1="0" x2="0" y2="-34" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    <text x="0" y="65" font-family="sans-serif" font-size="13" fill="#aaa" text-anchor="middle">MIX</text>
+    <text x="0" y="85" font-family="monospace" font-weight="bold" font-size="14" fill="#fff" text-anchor="middle">50%</text>
+  </g>
+</svg>
