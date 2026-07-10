@@ -3,10 +3,17 @@
 #include "PluginProcessor.h"
 #include <memory>
 
-class WebStyleLookAndFeel : public juce::LookAndFeel_V4
+namespace BitlayUi
+{
+    static constexpr int outerMargin = 20;
+    static constexpr int panelRadius = 8;
+    static constexpr int controlRadius = 5;
+}
+
+class BitlayLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
-    WebStyleLookAndFeel();
+    BitlayLookAndFeel();
     void drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
                            const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider& slider) override;
     void drawToggleButton (juce::Graphics& g, juce::ToggleButton& button, 
@@ -14,29 +21,34 @@ public:
 
     void drawTabButton (juce::TabBarButton& button, juce::Graphics& g, bool isMouseOver, bool isMouseDown) override;
     void drawComboBox (juce::Graphics& g, int width, int height, bool isButtonDown, int buttonX, int buttonY, int buttonW, int buttonH, juce::ComboBox& box) override;
+    void drawButtonBackground (juce::Graphics& g, juce::Button& button, const juce::Colour& backgroundColour,
+                               bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+    void drawButtonText (juce::Graphics& g, juce::TextButton& button, bool shouldDrawButtonAsHighlighted,
+                         bool shouldDrawButtonAsDown) override;
+    void drawGroupComponentOutline (juce::Graphics& g, int width, int height, const juce::String& text,
+                                    const juce::Justification& position, juce::GroupComponent& group) override;
 
     juce::Font getLabelFont (juce::Label& label) override;
     juce::Font getComboBoxFont (juce::ComboBox& box) override;
 
-    static const juce::Colour colorRetro;
-    static const juce::Colour colorBgDark;
-    static const juce::Colour colorPanel;
-    static const juce::Colour colorBorderDark;
-    static const juce::Colour colorBorderDim;
-    static const juce::Colour colorTextWhite;
-    static const juce::Colour colorTextMuted;
-    
-    // Neon Colors
-    static const juce::Colour colorNeonCyan;
-    static const juce::Colour colorNeonOrange;
-    static const juce::Colour colorNeonPurple;
-    static const juce::Colour colorNeonRed;
+    static const juce::Colour accent;
+    static const juce::Colour accentSoft;
+    static const juce::Colour background;
+    static const juce::Colour panel;
+    static const juce::Colour panelRaised;
+    static const juce::Colour borderStrong;
+    static const juce::Colour borderSubtle;
+    static const juce::Colour textPrimary;
+    static const juce::Colour textSecondary;
+    static const juce::Colour textMuted;
+    static const juce::Colour meter;
+    static const juce::Colour warning;
 };
 
-class WebLabel : public juce::Label
+class BitlayLabel : public juce::Label
 {
 public:
-    WebLabel(const juce::String& name = "", const juce::String& labelText = "");
+    BitlayLabel(const juce::String& name = "", const juce::String& labelText = "");
 };
 
 class OscilloscopeVisualizer : public juce::Component, public juce::Timer
@@ -55,7 +67,7 @@ private:
 
 struct SliderWithLabel {
     juce::Slider slider;
-    WebLabel label;
+    BitlayLabel label;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
     void init(const juce::String& labelText, juce::AudioProcessorValueTreeState& apvts, const juce::String& paramId) {
         slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
@@ -68,7 +80,7 @@ struct SliderWithLabel {
 
 struct LinearSliderWithLabel {
     juce::Slider slider;
-    WebLabel label;
+    BitlayLabel label;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attachment;
     void init(const juce::String& labelText, juce::AudioProcessorValueTreeState& apvts, const juce::String& paramId) {
         slider.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -81,7 +93,7 @@ struct LinearSliderWithLabel {
 
 struct ToggleWithLabel {
     juce::ToggleButton button;
-    WebLabel label;
+    BitlayLabel label;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> attachment;
     void init(const juce::String& labelText, juce::AudioProcessorValueTreeState& apvts, const juce::String& paramId) {
         button.setButtonText(labelText);
@@ -91,7 +103,7 @@ struct ToggleWithLabel {
 
 struct ComboWithLabel {
     juce::ComboBox combo;
-    WebLabel label;
+    BitlayLabel label;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> attachment;
     void init(const juce::String& labelText, juce::AudioProcessorValueTreeState& apvts, const juce::String& paramId, const juce::StringArray& choices) {
         label.setText(labelText, juce::dontSendNotification);
@@ -113,7 +125,7 @@ public:
     
 private:
     BitlayAudioProcessor& audioProcessor;
-    WebStyleLookAndFeel webLookAndFeel;
+    BitlayLookAndFeel bitlayLookAndFeel;
     OscilloscopeVisualizer scope;
 
     juce::TabbedComponent tabs;
@@ -156,9 +168,9 @@ private:
     
     // Macros
     juce::Slider macroTexture;
-    WebLabel labelTexture;
+    BitlayLabel labelTexture;
     juce::Slider macroMovement;
-    WebLabel labelMovement;
+    BitlayLabel labelMovement;
 
     // MODULATION (LFO)
     SliderWithLabel wobbleRate, wobbleDepth, wobbleSync;

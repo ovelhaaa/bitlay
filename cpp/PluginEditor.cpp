@@ -1,40 +1,45 @@
 #include "PluginEditor.h"
 
-const juce::Colour WebStyleLookAndFeel::colorRetro = juce::Colour(0xfff27d26);
-const juce::Colour WebStyleLookAndFeel::colorBgDark = juce::Colour(0xff08080c);
-const juce::Colour WebStyleLookAndFeel::colorPanel = juce::Colour(0xff121218);
-const juce::Colour WebStyleLookAndFeel::colorBorderDark = juce::Colour(0xff222233);
-const juce::Colour WebStyleLookAndFeel::colorBorderDim = juce::Colour(0xff303040);
-const juce::Colour WebStyleLookAndFeel::colorTextWhite = juce::Colour(0xffffffff);
-const juce::Colour WebStyleLookAndFeel::colorTextMuted = juce::Colour(0xff888888);
-const juce::Colour WebStyleLookAndFeel::colorNeonCyan = juce::Colour(0xff00e5ff);
-const juce::Colour WebStyleLookAndFeel::colorNeonOrange = juce::Colour(0xffff9900);
-const juce::Colour WebStyleLookAndFeel::colorNeonPurple = juce::Colour(0xffaa33ff);
-const juce::Colour WebStyleLookAndFeel::colorNeonRed = juce::Colour(0xffff3333);
+const juce::Colour BitlayLookAndFeel::accent = juce::Colour(0xffd87932);
+const juce::Colour BitlayLookAndFeel::accentSoft = juce::Colour(0xff8b4a22);
+const juce::Colour BitlayLookAndFeel::background = juce::Colour(0xff080807);
+const juce::Colour BitlayLookAndFeel::panel = juce::Colour(0xff151412);
+const juce::Colour BitlayLookAndFeel::panelRaised = juce::Colour(0xff24211d);
+const juce::Colour BitlayLookAndFeel::borderStrong = juce::Colour(0xff4b4339);
+const juce::Colour BitlayLookAndFeel::borderSubtle = juce::Colour(0xff2c2925);
+const juce::Colour BitlayLookAndFeel::textPrimary = juce::Colour(0xfff2eee7);
+const juce::Colour BitlayLookAndFeel::textSecondary = juce::Colour(0xffb5aaa0);
+const juce::Colour BitlayLookAndFeel::textMuted = juce::Colour(0xff736a62);
+const juce::Colour BitlayLookAndFeel::meter = juce::Colour(0xff86b887);
+const juce::Colour BitlayLookAndFeel::warning = juce::Colour(0xffd14d3f);
 
-WebStyleLookAndFeel::WebStyleLookAndFeel()
+BitlayLookAndFeel::BitlayLookAndFeel()
 {
-    setColour(juce::Slider::thumbColourId, colorNeonCyan);
-    setColour(juce::Slider::rotarySliderFillColourId, colorNeonCyan.withAlpha(0.8f));
-    setColour(juce::Slider::rotarySliderOutlineColourId, colorBorderDim);
-    setColour(juce::Slider::trackColourId, colorNeonCyan.withAlpha(0.3f));
-    setColour(juce::Slider::backgroundColourId, colorBorderDim);
-    setColour(juce::ToggleButton::tickColourId, colorNeonRed);
-    setColour(juce::ComboBox::backgroundColourId, colorPanel);
-    setColour(juce::ComboBox::outlineColourId, colorBorderDim);
-    setColour(juce::ComboBox::textColourId, colorTextWhite);
-    setColour(juce::TabbedComponent::backgroundColourId, colorBgDark);
-    setColour(juce::TabbedComponent::outlineColourId, colorBorderDark);
-    setColour(juce::TabbedButtonBar::tabTextColourId, colorTextMuted);
-    setColour(juce::TabbedButtonBar::frontTextColourId, colorNeonCyan);
-    setColour(juce::GroupComponent::textColourId, colorNeonCyan);
-    setColour(juce::GroupComponent::outlineColourId, colorBorderDim);
+    setColour(juce::Slider::thumbColourId, accent);
+    setColour(juce::Slider::rotarySliderFillColourId, accent);
+    setColour(juce::Slider::rotarySliderOutlineColourId, borderSubtle);
+    setColour(juce::Slider::trackColourId, accent.withAlpha(0.45f));
+    setColour(juce::Slider::backgroundColourId, borderSubtle);
+    setColour(juce::ToggleButton::tickColourId, accent);
+    setColour(juce::ComboBox::backgroundColourId, panelRaised);
+    setColour(juce::ComboBox::outlineColourId, borderSubtle);
+    setColour(juce::ComboBox::textColourId, textPrimary);
+    setColour(juce::TextButton::buttonColourId, panelRaised);
+    setColour(juce::TextButton::buttonOnColourId, accentSoft);
+    setColour(juce::TextButton::textColourOffId, textSecondary);
+    setColour(juce::TextButton::textColourOnId, textPrimary);
+    setColour(juce::TabbedComponent::backgroundColourId, background);
+    setColour(juce::TabbedComponent::outlineColourId, borderSubtle);
+    setColour(juce::TabbedButtonBar::tabTextColourId, textMuted);
+    setColour(juce::TabbedButtonBar::frontTextColourId, accent);
+    setColour(juce::GroupComponent::textColourId, textSecondary);
+    setColour(juce::GroupComponent::outlineColourId, borderSubtle);
 }
 
-void WebStyleLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
+void BitlayLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
                                             const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider& slider)
 {
-    auto radius = (float) juce::jmin (width / 2, height / 2) - 4.0f;
+    auto radius = (float) juce::jmin (width / 2, height / 2) - 7.0f;
     auto centreX = (float) x + (float) width  * 0.5f;
     auto centreY = (float) y + (float) height * 0.5f;
     auto rx = centreX - radius;
@@ -42,75 +47,70 @@ void WebStyleLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int
     auto rw = radius * 2.0f;
     auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
     
-    juce::Colour neonColor = colorNeonCyan;
-    if (slider.getName() == "Movement" || slider.getName() == "Wobble") neonColor = colorNeonPurple;
-    else if (slider.getName() == "Texture" || slider.getName() == "Drive") neonColor = colorNeonOrange;
+    juce::Colour controlColor = accent;
+    if (slider.getName() == "Movement" || slider.getName() == "Wobble") controlColor = meter;
+    else if (slider.getName() == "Texture" || slider.getName() == "Drive") controlColor = accent;
 
-    // Body
-    juce::ColourGradient bgGrad(juce::Colour(0xff323244), centreX, ry, juce::Colour(0xff171720), centreX, ry + rw, false);
+    juce::ColourGradient bgGrad(panelRaised.brighter(0.16f), centreX, ry, panel.darker(0.55f), centreX, ry + rw, false);
     g.setGradientFill(bgGrad);
     g.fillEllipse (rx, ry, rw, rw);
     
-    g.setColour (juce::Colour(0xff111111));
-    g.drawEllipse (rx, ry, rw, rw, 2.0f);
+    g.setColour (juce::Colours::black.withAlpha(0.55f));
+    g.drawEllipse (rx + 1.0f, ry + 2.0f, rw - 2.0f, rw - 2.0f, 2.0f);
+    g.setColour (borderStrong.withAlpha(0.75f));
+    g.drawEllipse (rx, ry, rw, rw, 1.4f);
     
-    // Track
     juce::Path track;
-    track.addCentredArc(centreX, centreY, radius, radius, 0.0f, rotaryStartAngle, rotaryEndAngle, true);
-    g.setColour(juce::Colour(0xff222222));
-    g.strokePath(track, juce::PathStrokeType(4.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    track.addCentredArc(centreX, centreY, radius + 2.0f, radius + 2.0f, 0.0f, rotaryStartAngle, rotaryEndAngle, true);
+    g.setColour(borderSubtle);
+    g.strokePath(track, juce::PathStrokeType(3.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 
-    // Fill arc
     juce::Path fill;
-    fill.addCentredArc(centreX, centreY, radius, radius, 0.0f, rotaryStartAngle, angle, true);
-    g.setColour(neonColor.withAlpha(0.3f));
-    g.strokePath(fill, juce::PathStrokeType(8.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded)); // Glow
-    g.setColour(neonColor);
-    g.strokePath(fill, juce::PathStrokeType(4.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded)); // Core
+    fill.addCentredArc(centreX, centreY, radius + 2.0f, radius + 2.0f, 0.0f, rotaryStartAngle, angle, true);
+    g.setColour(controlColor);
+    g.strokePath(fill, juce::PathStrokeType(3.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
     
-    // Pointer
     juce::Path p;
-    auto pointerLength = radius * 0.7f;
-    auto pointerThickness = 3.0f;
-    p.addRectangle (-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
+    auto pointerLength = radius * 0.62f;
+    auto pointerThickness = 2.6f;
+    p.addRoundedRectangle (-pointerThickness * 0.5f, -radius + 8.0f, pointerThickness, pointerLength, 1.2f);
     p.applyTransform (juce::AffineTransform::rotation (angle).translated (centreX, centreY));
-    g.setColour (juce::Colours::white);
+    g.setColour (textPrimary);
     g.fillPath (p);
 }
 
-void WebStyleLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& button, 
+void BitlayLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& button,
                                             bool, bool)
 {
     auto bounds = button.getLocalBounds().toFloat();
     bool isReverse = button.getButtonText().containsIgnoreCase("Reverse");
-    juce::Colour activeColor = isReverse ? colorNeonRed : colorNeonCyan;
+    bool isBypass = button.getButtonText().containsIgnoreCase("Bypass");
+    juce::Colour activeColor = isReverse || isBypass ? warning : accent;
     
     if (isReverse) {
-        g.setColour(juce::Colour(0xff301015));
-        g.fillRoundedRectangle(bounds, 8.0f);
-        g.setColour(activeColor.withAlpha(0.5f));
-        g.drawRoundedRectangle(bounds, 2.0f, 8.0f);
+        g.setColour(button.getToggleState() ? warning.withAlpha(0.18f) : panelRaised);
+        g.fillRoundedRectangle(bounds, (float) BitlayUi::controlRadius);
+        g.setColour(button.getToggleState() ? activeColor : borderSubtle);
+        g.drawRoundedRectangle(bounds.reduced(0.5f), (float) BitlayUi::controlRadius, 1.2f);
         
         float circleSize = 10.0f;
         if (button.getToggleState()) {
-            g.setColour(activeColor.withAlpha(0.3f));
-            g.fillEllipse(10, (bounds.getHeight() - circleSize) / 2.0f, circleSize, circleSize); // Glow
             g.setColour(activeColor);
         } else {
-            g.setColour(colorBorderDim);
+            g.setColour(textMuted);
         }
         g.fillEllipse(10, (bounds.getHeight() - circleSize) / 2.0f, circleSize, circleSize);
         
-        g.setColour (colorTextWhite);
+        g.setColour (button.getToggleState() ? textPrimary : textSecondary);
         g.setFont(juce::Font(14.0f, juce::Font::bold));
         g.drawFittedText(button.getButtonText(), bounds.withTrimmedLeft(25).toNearestInt(), juce::Justification::centred, 1);
     } else {
         auto fontSize = juce::jmin (13.0f, (float) button.getHeight() * 0.75f);
         auto tickWidth = fontSize * 1.1f;
-        g.setColour (button.getToggleState() ? activeColor : colorBorderDim);
-        g.fillRoundedRectangle(0.0f, (button.getHeight() - tickWidth) * 0.5f, tickWidth, tickWidth, 4.0f);
+        g.setColour (button.getToggleState() ? activeColor : borderSubtle);
+        g.fillRoundedRectangle(0.0f, (button.getHeight() - tickWidth) * 0.5f, tickWidth, tickWidth, (float) BitlayUi::controlRadius);
 
-        g.setColour (colorTextWhite);
+        g.setColour (button.getToggleState() ? textPrimary : textSecondary);
         g.setFont (fontSize);
         g.drawFittedText (button.getButtonText(),
                           button.getLocalBounds().withTrimmedLeft (juce::roundToInt (tickWidth) + 10),
@@ -118,44 +118,83 @@ void WebStyleLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButto
     }
 }
 
-void WebStyleLookAndFeel::drawTabButton (juce::TabBarButton& button, juce::Graphics& g, bool isMouseOver, bool isMouseDown)
+void BitlayLookAndFeel::drawTabButton (juce::TabBarButton& button, juce::Graphics& g, bool isMouseOver, bool isMouseDown)
 {
     auto area = button.getLocalBounds().toFloat();
     bool isActive = button.isFrontTab();
     
     if (isActive) {
-        juce::ColourGradient grad(colorNeonCyan.withAlpha(0.15f), 0, 0, colorNeonCyan.withAlpha(0.0f), 0, area.getHeight(), false);
-        g.setGradientFill(grad);
+        g.setColour(panelRaised);
         g.fillRoundedRectangle(area, 8.0f);
-        g.setColour(colorNeonCyan);
-        g.drawRoundedRectangle(area, 2.0f, 8.0f);
+        g.setColour(accent);
+        g.fillRoundedRectangle(area.removeFromBottom(2.0f), 1.0f);
+    } else if (isMouseOver || isMouseDown) {
+        g.setColour(panelRaised.withAlpha(0.55f));
+        g.fillRoundedRectangle(area.reduced(1.0f), 7.0f);
     }
     
-    g.setColour(isActive ? colorNeonCyan : colorTextMuted);
+    g.setColour(isActive ? textPrimary : textMuted);
     g.setFont(juce::Font(13.0f, juce::Font::bold));
     g.drawText(button.getButtonText(), area, juce::Justification::centred, true);
 }
 
-void WebStyleLookAndFeel::drawComboBox (juce::Graphics& g, int width, int height, bool, int, int, int, int, juce::ComboBox& box)
+void BitlayLookAndFeel::drawComboBox (juce::Graphics& g, int width, int height, bool, int, int, int, int, juce::ComboBox& box)
 {
     juce::Rectangle<int> bounds(0, 0, width, height);
-    g.setColour(juce::Colour(0xff0a0a0f));
-    g.fillRoundedRectangle(bounds.toFloat(), 6.0f);
-    g.setColour(colorNeonCyan.withAlpha(0.4f));
-    g.drawRoundedRectangle(bounds.toFloat(), 1.0f, 6.0f);
+    g.setColour(panelRaised);
+    g.fillRoundedRectangle(bounds.toFloat(), (float) BitlayUi::controlRadius);
+    g.setColour(borderStrong.withAlpha(0.75f));
+    g.drawRoundedRectangle(bounds.toFloat().reduced(0.5f), (float) BitlayUi::controlRadius, 1.0f);
     
     juce::Path path;
     path.addTriangle(width - 15.0f, height * 0.4f, width - 5.0f, height * 0.4f, width - 10.0f, height * 0.6f);
-    g.setColour(colorNeonCyan);
+    g.setColour(accent);
     g.fillPath(path);
 }
 
-juce::Font WebStyleLookAndFeel::getLabelFont (juce::Label&) { return juce::Font (11.0f); }
-juce::Font WebStyleLookAndFeel::getComboBoxFont (juce::ComboBox&) { return juce::Font (13.0f, juce::Font::bold); }
-
-WebLabel::WebLabel(const juce::String& name, const juce::String& labelText) : juce::Label(name, labelText)
+void BitlayLookAndFeel::drawButtonBackground (juce::Graphics& g, juce::Button& button, const juce::Colour&,
+                                              bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
-    setColour(juce::Label::textColourId, WebStyleLookAndFeel::colorTextMuted);
+    auto bounds = button.getLocalBounds().toFloat().reduced(0.5f);
+    auto base = button.getToggleState() ? accentSoft : panelRaised;
+    if (shouldDrawButtonAsDown) base = base.darker(0.25f);
+    else if (shouldDrawButtonAsHighlighted) base = base.brighter(0.12f);
+
+    g.setColour(base);
+    g.fillRoundedRectangle(bounds, (float) BitlayUi::controlRadius);
+    g.setColour((button.getToggleState() ? accent : borderStrong).withAlpha(0.8f));
+    g.drawRoundedRectangle(bounds, (float) BitlayUi::controlRadius, 1.0f);
+}
+
+void BitlayLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& button,
+                                        bool, bool)
+{
+    g.setColour(button.getToggleState() ? textPrimary : textSecondary);
+    g.setFont(juce::Font(12.0f, juce::Font::bold));
+    g.drawFittedText(button.getButtonText(), button.getLocalBounds().reduced(8, 0),
+                     juce::Justification::centred, 1);
+}
+
+void BitlayLookAndFeel::drawGroupComponentOutline (juce::Graphics& g, int width, int height, const juce::String& text,
+                                                   const juce::Justification&, juce::GroupComponent&)
+{
+    auto bounds = juce::Rectangle<float>(0.5f, 9.5f, (float) width - 1.0f, (float) height - 10.0f);
+    g.setColour(panel.withAlpha(0.66f));
+    g.fillRoundedRectangle(bounds, (float) BitlayUi::panelRadius);
+    g.setColour(borderSubtle);
+    g.drawRoundedRectangle(bounds, (float) BitlayUi::panelRadius, 1.0f);
+
+    g.setColour(textSecondary);
+    g.setFont(juce::Font(12.0f, juce::Font::bold));
+    g.drawText(text.toUpperCase(), 12, 0, width - 24, 18, juce::Justification::centredLeft, true);
+}
+
+juce::Font BitlayLookAndFeel::getLabelFont (juce::Label&) { return juce::Font (11.0f); }
+juce::Font BitlayLookAndFeel::getComboBoxFont (juce::ComboBox&) { return juce::Font (13.0f, juce::Font::bold); }
+
+BitlayLabel::BitlayLabel(const juce::String& name, const juce::String& labelText) : juce::Label(name, labelText)
+{
+    setColour(juce::Label::textColourId, BitlayLookAndFeel::textMuted);
 }
 
 OscilloscopeVisualizer::OscilloscopeVisualizer(BitlayAudioProcessor& p) : processor(p)
@@ -191,9 +230,12 @@ void OscilloscopeVisualizer::timerCallback()
 
 void OscilloscopeVisualizer::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colour(0xff050508));
-    g.setColour(WebStyleLookAndFeel::colorBorderDark);
-    g.drawRoundedRectangle(getLocalBounds().toFloat(), 2.0f, 12.0f);
+    g.fillAll(BitlayLookAndFeel::background.darker(0.35f));
+    auto bounds = getLocalBounds().toFloat().reduced(0.5f);
+    g.setColour(BitlayLookAndFeel::panel.withAlpha(0.7f));
+    g.fillRoundedRectangle(bounds, (float) BitlayUi::panelRadius);
+    g.setColour(BitlayLookAndFeel::borderSubtle);
+    g.drawRoundedRectangle(bounds, (float) BitlayUi::panelRadius, 1.0f);
 
     if (integratorData.empty()) return;
 
@@ -211,29 +253,31 @@ void OscilloscopeVisualizer::paint(juce::Graphics& g)
         pStep.lineTo(x, height - stepSizeData[i] * height);
     }
 
-    g.setColour(WebStyleLookAndFeel::colorNeonCyan.withAlpha(0.3f));
+    g.setColour(BitlayLookAndFeel::meter.withAlpha(0.25f));
     g.strokePath(pInt, juce::PathStrokeType(4.0f));
-    g.setColour(WebStyleLookAndFeel::colorNeonCyan);
+    g.setColour(BitlayLookAndFeel::meter);
     g.strokePath(pInt, juce::PathStrokeType(1.5f));
     
-    g.setColour(WebStyleLookAndFeel::colorNeonRed.withAlpha(0.6f));
+    g.setColour(BitlayLookAndFeel::accent.withAlpha(0.72f));
     g.strokePath(pStep, juce::PathStrokeType(2.0f));
 }
 
 BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), scope(p), tabs(juce::TabbedButtonBar::TabsAtTop)
 {
-    juce::LookAndFeel::setDefaultLookAndFeel(&webLookAndFeel);
+    juce::LookAndFeel::setDefaultLookAndFeel(&bitlayLookAndFeel);
     juce::StringArray subdivs { "1/16", "1/3T", "1/8", "1/8D", "1/4", "1/2D", "1/2", "custom" };
     juce::StringArray circuits { "Discrete", "Companded" };
     auto& apvts = audioProcessor.apvts;
 
     pluginTitle.setText("BITLAY", juce::dontSendNotification);
-    pluginTitle.setFont(juce::Font(28.0f, juce::Font::bold));
-    pluginTitle.setColour(juce::Label::textColourId, WebStyleLookAndFeel::colorTextWhite);
+    pluginTitle.setFont(juce::Font(30.0f, juce::Font::bold));
+    pluginTitle.setColour(juce::Label::textColourId, BitlayLookAndFeel::textPrimary);
     addAndMakeVisible(pluginTitle);
     
-    presetLabel.setText("Preset:", juce::dontSendNotification);
+    presetLabel.setText("PRESET", juce::dontSendNotification);
+    presetLabel.setFont(juce::Font(11.0f, juce::Font::bold));
+    presetLabel.setColour(juce::Label::textColourId, BitlayLookAndFeel::textMuted);
     addAndMakeVisible(presetLabel);
     addAndMakeVisible(presetComboBox);
     addAndMakeVisible(savePresetButton);
@@ -338,10 +382,10 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     
     addComps(reverseTabComp, {&reverseChunkSize.slider, &reverseChunkSize.label, &reverseFeedback.slider, &reverseFeedback.label, &wobbleRate.slider, &wobbleRate.label, &wobbleDepth.slider, &wobbleDepth.label, &wobbleSync.slider, &wobbleSync.label});
 
-    tabs.addTab("1. MACROS & CORE", WebStyleLookAndFeel::colorBgDark, mainTabComp, true);
-    tabs.addTab("2. MULTI-TAP ENGINE", WebStyleLookAndFeel::colorBgDark, tapsTabComp, true);
-    tabs.addTab("3. ADVANCED CVSD", WebStyleLookAndFeel::colorBgDark, circuitTabComp, true);
-    tabs.addTab("4. REVERSE & MOD", WebStyleLookAndFeel::colorBgDark, reverseTabComp, true);
+    tabs.addTab("MAIN", BitlayLookAndFeel::background, mainTabComp, true);
+    tabs.addTab("RHYTHM", BitlayLookAndFeel::background, tapsTabComp, true);
+    tabs.addTab("ENGINE", BitlayLookAndFeel::background, circuitTabComp, true);
+    tabs.addTab("LAB", BitlayLookAndFeel::background, reverseTabComp, true);
 
     addAndMakeVisible(tabs);
     addAndMakeVisible(scope);
@@ -353,9 +397,13 @@ BitlayAudioProcessorEditor::~BitlayAudioProcessorEditor() { juce::LookAndFeel::s
 
 void BitlayAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    juce::ColourGradient bgGrad(juce::Colour(0xff121218), 0, 0, juce::Colour(0xff08080c), 0, (float)getHeight(), false);
+    juce::ColourGradient bgGrad(BitlayLookAndFeel::panel, 0, 0, BitlayLookAndFeel::background, 0, (float)getHeight(), false);
     g.setGradientFill(bgGrad);
     g.fillAll();
+
+    auto faceplate = getLocalBounds().reduced(10).toFloat();
+    g.setColour(BitlayLookAndFeel::borderSubtle.withAlpha(0.65f));
+    g.drawRoundedRectangle(faceplate, 10.0f, 1.0f);
 }
 
 void BitlayAudioProcessorEditor::updatePresetList()
@@ -385,7 +433,7 @@ void BitlayAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
 
 void BitlayAudioProcessorEditor::resized()
 {
-    auto area = getLocalBounds().reduced(20);
+    auto area = getLocalBounds().reduced(BitlayUi::outerMargin);
 
     // Header
     auto headerArea = area.removeFromTop(60);
