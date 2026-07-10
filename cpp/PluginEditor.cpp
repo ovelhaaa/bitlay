@@ -295,17 +295,17 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     addAndMakeVisible(bypass.button);
 
     // Main
-    delayTime.slider.setName("Cyan"); delayTime.init("Delay Time", apvts, "delayTime");
-    feedback.slider.setName("Cyan"); feedback.init("Feedback", apvts, "feedback");
-    mix.slider.setName("Cyan"); mix.init("Dry/Wet Mix", apvts, "mix");
-    internalBpm.slider.setName("Cyan"); internalBpm.init("Tempo (BPM)", apvts, "internalBpm");
-    bpmSync.init("Sync Mode", apvts, "bpmSync");
+    delayTime.slider.setName("Main"); delayTime.init("Time", apvts, "delayTime");
+    feedback.slider.setName("Main"); feedback.init("Feedback", apvts, "feedback");
+    mix.slider.setName("Main"); mix.init("Mix", apvts, "mix");
+    internalBpm.slider.setName("Main"); internalBpm.init("BPM", apvts, "internalBpm");
+    bpmSync.init("Host Sync", apvts, "bpmSync");
     freeze.init("Freeze Loop", apvts, "freeze");
-    mainSubdivision.init("Beat Subdiv", apvts, "mainSubdivision", subdivs);
+    mainSubdivision.init("Subdivision", apvts, "mainSubdivision", subdivs);
 
     // Macros
     macroTexture.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    macroTexture.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    macroTexture.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 64, 20);
     macroTexture.setName("Texture");
     macroTexture.setRange(0.0, 1.0);
     macroTexture.setValue(0.5);
@@ -314,12 +314,12 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     labelTexture.setJustificationType(juce::Justification::centred);
 
     macroMovement.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    macroMovement.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    macroMovement.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 64, 20);
     macroMovement.setName("Movement");
     macroMovement.setRange(0.0, 1.0);
     macroMovement.setValue(0.5);
     macroMovement.addListener(this);
-    labelMovement.setText("WOBBLE", juce::dontSendNotification);
+    labelMovement.setText("MOVEMENT", juce::dontSendNotification);
     labelMovement.setJustificationType(juce::Justification::centred);
 
     // Modulation
@@ -337,8 +337,8 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     reconCutoff.init("Lowpass Freq", apvts, "reconstructionCutoff");
     integratorLeak.init("Memory Leak", apvts, "integratorLeak");
     dynamicResponse.init("Dynamic Resp", apvts, "dynamicResponse");
-    feedbackTone.init("Echo Tone", apvts, "feedbackTone");
-    stereoSpread.init("Stereo Width", apvts, "stereoSpread");
+    feedbackTone.init("Tone", apvts, "feedbackTone");
+    stereoSpread.init("Width", apvts, "stereoSpread");
     
     envAttack.init("Env Attack", apvts, "envAttack");
     envRelease.init("Env Release", apvts, "envRelease");
@@ -374,9 +374,9 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
 
     auto addComps = [](juce::Component* p, std::vector<juce::Component*> c) { for (auto* comp : c) p->addAndMakeVisible(comp); };
 
-    addComps(mainTabComp, {&delayTime.slider, &delayTime.label, &feedback.slider, &feedback.label, &mix.slider, &mix.label, &internalBpm.slider, &internalBpm.label, &mainSubdivision.combo, &mainSubdivision.label, &bpmSync.button, &freeze.button, &macroTexture, &labelTexture, &macroMovement, &labelMovement});
+    addComps(mainTabComp, {&delayTime.slider, &delayTime.label, &feedback.slider, &feedback.label, &mix.slider, &mix.label, &internalBpm.slider, &internalBpm.label, &mainSubdivision.combo, &mainSubdivision.label, &bpmSync.button, &freeze.button, &macroTexture, &labelTexture, &macroMovement, &labelMovement, &character.slider, &character.label, &feedbackTone.slider, &feedbackTone.label, &stereoSpread.slider, &stereoSpread.label});
     
-    addComps(circuitTabComp, {&circuitType.combo, &circuitType.label, &coupledMode.button, &character.slider, &character.label, &stepSize.slider, &stepSize.label, &clockJitter.slider, &clockJitter.label, &integratorLag.slider, &integratorLag.label, &reconCutoff.slider, &reconCutoff.label, &integratorLeak.slider, &integratorLeak.label, &dynamicResponse.slider, &dynamicResponse.label, &feedbackTone.slider, &feedbackTone.label, &stereoSpread.slider, &stereoSpread.label, &envAttack.slider, &envAttack.label, &envRelease.slider, &envRelease.label, &minStepSize.slider, &minStepSize.label, &maxStepSize.slider, &maxStepSize.label, &syllabicTime.slider, &syllabicTime.label});
+    addComps(circuitTabComp, {&circuitType.combo, &circuitType.label, &coupledMode.button, &stepSize.slider, &stepSize.label, &clockJitter.slider, &clockJitter.label, &integratorLag.slider, &integratorLag.label, &reconCutoff.slider, &reconCutoff.label, &integratorLeak.slider, &integratorLeak.label, &dynamicResponse.slider, &dynamicResponse.label, &envAttack.slider, &envAttack.label, &envRelease.slider, &envRelease.label, &minStepSize.slider, &minStepSize.label, &maxStepSize.slider, &maxStepSize.label, &syllabicTime.slider, &syllabicTime.label});
     
     addComps(tapsTabComp, {&numTaps.slider, &numTaps.label, &tapDecay.slider, &tapDecay.label, &tap1Mult.slider, &tap1Mult.label, &tap1Mix.slider, &tap1Mix.label, &tap1Subdiv.combo, &tap1Subdiv.label, &tap2Mult.slider, &tap2Mult.label, &tap2Mix.slider, &tap2Mix.label, &tap2Subdiv.combo, &tap2Subdiv.label, &tap3Mult.slider, &tap3Mult.label, &tap3Mix.slider, &tap3Mix.label, &tap3Subdiv.combo, &tap3Subdiv.label, &tap4Mult.slider, &tap4Mult.label, &tap4Mix.slider, &tap4Mix.label, &tap4Subdiv.combo, &tap4Subdiv.label});
     
@@ -451,7 +451,7 @@ void BitlayAudioProcessorEditor::resized()
     bypass.button.setBounds(headerArea.removeFromLeft(100).reduced(0, 10));
 
     area.removeFromTop(10);
-    scope.setBounds(area.removeFromTop(180));
+    scope.setBounds(area.removeFromTop(112));
     area.removeFromTop(15);
     tabs.setBounds(area);
 
@@ -466,25 +466,28 @@ void BitlayAudioProcessorEditor::resized()
     auto placeToggle = [&](ToggleWithLabel& twl, int x, int y, int bw=80) { twl.button.setBounds(x, y, bw, 24); };
 
     // MAIN TAB
-    groupTime.setBounds(10, 10, 360, 240);
-    placeKnob(delayTime, 30, 50, 100, 110);
-    placeKnob(feedback, 150, 50, 100, 110);
-    placeCombo(mainSubdivision, 260, 80, 90);
-    
-    internalBpm.label.setBounds(30, 180, 100, 20);
-    internalBpm.slider.setBounds(130, 180, 200, 24); // Linear slider
-    
-    placeToggle(bpmSync, 30, 210, 100);
-    placeToggle(freeze, 150, 210, 100);
+    groupTime.setBounds(10, 10, 360, 315);
+    placeKnob(delayTime, 35, 54, 132, 148);
+    placeKnob(feedback, 188, 54, 132, 148);
+    placeCombo(mainSubdivision, 42, 236, 108);
 
-    groupMacros.setBounds(390, 10, 320, 240);
-    macroTexture.setBounds(430, 80, 100, 90);
-    labelTexture.setBounds(430, 170, 100, 20);
-    macroMovement.setBounds(560, 80, 100, 90);
-    labelMovement.setBounds(560, 170, 100, 20);
-    
-    groupMix.setBounds(730, 10, 200, 240);
-    placeKnob(mix, 780, 80, 100, 110);
+    internalBpm.label.setBounds(178, 212, 50, 20);
+    internalBpm.slider.setBounds(222, 211, 110, 24);
+
+    placeToggle(bpmSync, 42, 274, 112);
+    placeToggle(freeze, 182, 274, 120);
+
+    groupMacros.setBounds(390, 10, 330, 315);
+    macroTexture.setBounds(426, 62, 118, 126);
+    labelTexture.setBounds(426, 188, 118, 20);
+    macroMovement.setBounds(568, 62, 118, 126);
+    labelMovement.setBounds(568, 188, 118, 20);
+    placeKnob(character, 430, 232, 78, 86);
+    placeKnob(feedbackTone, 532, 232, 78, 86);
+    placeKnob(stereoSpread, 634, 232, 78, 86);
+
+    groupMix.setBounds(740, 10, 210, 315);
+    placeKnob(mix, 782, 70, 128, 148);
 
     // TAPS TAB
     groupTapGlobal.setBounds(10, 10, 200, 240);
@@ -507,17 +510,14 @@ void BitlayAudioProcessorEditor::resized()
     groupEngine.setBounds(10, 10, 450, 160);
     placeCombo(circuitType, 30, 40, 120);
     placeToggle(coupledMode, 170, 40, 120);
-    placeKnob(character, 30, 80, 80, 90);
-    placeKnob(stepSize, 130, 80, 80, 90);
-    placeKnob(minStepSize, 230, 80, 80, 90);
-    placeKnob(maxStepSize, 330, 80, 80, 90);
+    placeKnob(stepSize, 40, 80, 80, 90);
+    placeKnob(minStepSize, 170, 80, 80, 90);
+    placeKnob(maxStepSize, 300, 80, 80, 90);
     
     groupFilters.setBounds(480, 10, 470, 160);
-    placeKnob(integratorLag, 500, 60, 80, 90);
-    placeKnob(reconCutoff, 590, 60, 80, 90);
-    placeKnob(feedbackTone, 680, 60, 80, 90);
-    placeKnob(stereoSpread, 770, 60, 80, 90);
-    placeKnob(clockJitter, 860, 60, 80, 90);
+    placeKnob(integratorLag, 520, 60, 80, 90);
+    placeKnob(reconCutoff, 650, 60, 80, 90);
+    placeKnob(clockJitter, 780, 60, 80, 90);
 
     groupEnv.setBounds(10, 185, 940, 140);
     placeKnob(envAttack, 100, 220, 80, 90);

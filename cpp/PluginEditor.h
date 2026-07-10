@@ -142,9 +142,9 @@ private:
     juce::Label presetLabel;
 
     // Groups (Frames)
-    juce::GroupComponent groupTime{"groupTime", "Time & Rhythm"};
-    juce::GroupComponent groupMacros{"groupMacros", "Texture Macros"};
-    juce::GroupComponent groupMix{"groupMix", "Master & Output"};
+    juce::GroupComponent groupTime{"groupTime", "Delay"};
+    juce::GroupComponent groupMacros{"groupMacros", "Color & Motion"};
+    juce::GroupComponent groupMix{"groupMix", "Output"};
     
     juce::GroupComponent groupTapGlobal{"groupTapGlobal", "Global Taps Settings"};
     juce::GroupComponent groupTap1{"groupTap1", "Tap 1"};
