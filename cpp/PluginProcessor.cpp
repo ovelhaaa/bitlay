@@ -17,6 +17,7 @@ BitlayAudioProcessor::BitlayAudioProcessor()
     apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
 {
     createDefaultPresetsIfNeeded();
+    markCurrentPresetClean();
 }
 
 BitlayAudioProcessor::~BitlayAudioProcessor()
@@ -268,7 +269,10 @@ void BitlayAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 void BitlayAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     if (auto xmlState = getXmlFromBinary (data, sizeInBytes))
+    {
         apvts.replaceState (juce::ValueTree::fromXml (*xmlState));
+        markCurrentPresetClean();
+    }
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
@@ -311,6 +315,7 @@ void BitlayAudioProcessor::loadPreset(const juce::String& presetName)
         {
             apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
             currentPreset = presetName;
+            markCurrentPresetClean();
         }
     }
 }
@@ -322,7 +327,18 @@ void BitlayAudioProcessor::savePreset(const juce::String& presetName)
     {
         xmlState->writeTo(file);
         currentPreset = presetName;
+        markCurrentPresetClean();
     }
+}
+
+bool BitlayAudioProcessor::isCurrentPresetEdited()
+{
+    return cleanPresetState.isValid() && ! apvts.copyState().isEquivalentTo(cleanPresetState);
+}
+
+void BitlayAudioProcessor::markCurrentPresetClean()
+{
+    cleanPresetState = apvts.copyState().createCopy();
 }
 
 void BitlayAudioProcessor::createDefaultPresetsIfNeeded()

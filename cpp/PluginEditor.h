@@ -113,7 +113,7 @@ struct ComboWithLabel {
     }
 };
 
-class BitlayAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Slider::Listener
+class BitlayAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Slider::Listener, public juce::Timer
 {
 public:
     BitlayAudioProcessorEditor (BitlayAudioProcessor&);
@@ -122,8 +122,12 @@ public:
     void resized() override;
     void updatePresetList();
     void sliderValueChanged (juce::Slider* slider) override;
+    void timerCallback() override;
     
 private:
+    void showSaveAsDialog();
+    void updatePresetStatus();
+
     BitlayAudioProcessor& audioProcessor;
     BitlayLookAndFeel bitlayLookAndFeel;
     OscilloscopeVisualizer scope;
@@ -132,8 +136,12 @@ private:
 
     // Preset Header
     juce::ComboBox presetComboBox;
+    juce::TextButton previousPresetButton;
+    juce::TextButton nextPresetButton;
     juce::TextButton savePresetButton;
     juce::TextButton newPresetButton;
+    juce::Label presetStatusLabel;
+    std::unique_ptr<juce::AlertWindow> saveAsDialog;
 
     // Global Top Bar
     ToggleWithLabel reverseMode;

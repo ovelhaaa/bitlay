@@ -279,15 +279,52 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     presetLabel.setFont(juce::Font(11.0f, juce::Font::bold));
     presetLabel.setColour(juce::Label::textColourId, BitlayLookAndFeel::textMuted);
     addAndMakeVisible(presetLabel);
+    addAndMakeVisible(previousPresetButton);
+    addAndMakeVisible(nextPresetButton);
     addAndMakeVisible(presetComboBox);
     addAndMakeVisible(savePresetButton);
     addAndMakeVisible(newPresetButton);
+    presetStatusLabel.setText("EDITED", juce::dontSendNotification);
+    presetStatusLabel.setFont(juce::Font(10.0f, juce::Font::bold));
+    presetStatusLabel.setColour(juce::Label::textColourId, BitlayLookAndFeel::accent);
+    presetStatusLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(presetStatusLabel);
+    previousPresetButton.setButtonText("<");
+    nextPresetButton.setButtonText(">");
     savePresetButton.setButtonText("Save");
     newPresetButton.setButtonText("Save As...");
     updatePresetList();
-    presetComboBox.onChange = [this] { if (presetComboBox.getSelectedItemIndex() >= 0) audioProcessor.loadPreset(presetComboBox.getText()); };
-    savePresetButton.onClick = [this] { audioProcessor.savePreset(presetComboBox.getText()); };
-    newPresetButton.onClick = [this] { /* async logic placeholder */ };
+    updatePresetStatus();
+    presetComboBox.onChange = [this] {
+        if (presetComboBox.getSelectedItemIndex() >= 0)
+        {
+            audioProcessor.loadPreset(presetComboBox.getText());
+            updatePresetStatus();
+        }
+    };
+    previousPresetButton.onClick = [this] {
+        auto itemCount = presetComboBox.getNumItems();
+        auto selectedIndex = juce::jmax(0, presetComboBox.getSelectedItemIndex());
+        if (itemCount > 0)
+            presetComboBox.setSelectedItemIndex((selectedIndex + itemCount - 1) % itemCount);
+    };
+    nextPresetButton.onClick = [this] {
+        auto itemCount = presetComboBox.getNumItems();
+        auto selectedIndex = juce::jmax(0, presetComboBox.getSelectedItemIndex());
+        if (itemCount > 0)
+            presetComboBox.setSelectedItemIndex((selectedIndex + 1) % itemCount);
+    };
+    savePresetButton.onClick = [this] {
+        auto presetName = presetComboBox.getText().trim();
+        if (presetName.isNotEmpty())
+        {
+            audioProcessor.savePreset(presetName);
+            updatePresetList();
+            updatePresetStatus();
+        }
+    };
+    newPresetButton.onClick = [this] { showSaveAsDialog(); };
+    startTimerHz(8);
 
     reverseMode.init("REVERSE", apvts, "reverseMode");
     addAndMakeVisible(reverseMode.button);
@@ -410,10 +447,61 @@ void BitlayAudioProcessorEditor::updatePresetList()
 {
     presetComboBox.clear();
     auto presets = audioProcessor.getPresetNames();
+    presets.sort(true);
     presetComboBox.addItemList(presets, 1);
     int index = presets.indexOf(audioProcessor.currentPreset);
     if (index >= 0) presetComboBox.setSelectedItemIndex(index, juce::dontSendNotification);
     else if (presets.size() > 0) presetComboBox.setSelectedItemIndex(0, juce::dontSendNotification);
+}
+
+void BitlayAudioProcessorEditor::showSaveAsDialog()
+{
+    auto suggestedName = presetComboBox.getText().trim();
+    if (suggestedName.isEmpty())
+        suggestedName = audioProcessor.currentPreset;
+
+    saveAsDialog = std::make_unique<juce::AlertWindow>("Save Preset As",
+                                                       "Create a new Bitlay preset.",
+                                                       juce::AlertWindow::NoIcon);
+    saveAsDialog->addTextEditor("presetName", suggestedName, "Preset name:");
+    saveAsDialog->addButton("Save", 1, juce::KeyPress(juce::KeyPress::returnKey));
+    saveAsDialog->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey));
+
+    juce::Component::SafePointer<BitlayAudioProcessorEditor> safeThis(this);
+    saveAsDialog->enterModalState(true, juce::ModalCallbackFunction::create([safeThis](int result) {
+        if (safeThis.getComponent() == nullptr)
+            return;
+
+        auto* editor = safeThis.getComponent();
+        if (result == 1 && editor->saveAsDialog != nullptr)
+        {
+            auto presetName = editor->saveAsDialog->getTextEditorContents("presetName")
+                                  .trim()
+                                  .removeCharacters("\\/:*?\"<>|");
+            if (presetName.isNotEmpty())
+            {
+                editor->audioProcessor.savePreset(presetName);
+                editor->updatePresetList();
+                editor->presetComboBox.setText(presetName, juce::dontSendNotification);
+                editor->updatePresetStatus();
+            }
+        }
+
+        if (editor != nullptr)
+            editor->saveAsDialog.reset();
+    }), false);
+}
+
+void BitlayAudioProcessorEditor::updatePresetStatus()
+{
+    auto edited = audioProcessor.isCurrentPresetEdited();
+    presetStatusLabel.setVisible(edited);
+    savePresetButton.setButtonText(edited ? "Save*" : "Save");
+}
+
+void BitlayAudioProcessorEditor::timerCallback()
+{
+    updatePresetStatus();
 }
 
 void BitlayAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
@@ -439,9 +527,12 @@ void BitlayAudioProcessorEditor::resized()
     auto headerArea = area.removeFromTop(60);
     pluginTitle.setBounds(headerArea.removeFromLeft(150));
     
-    auto presetArea = headerArea.removeFromLeft(420).reduced(0, 10);
+    auto presetArea = headerArea.removeFromLeft(500).reduced(0, 10);
     presetLabel.setBounds(presetArea.removeFromLeft(55));
+    previousPresetButton.setBounds(presetArea.removeFromLeft(28).reduced(2));
     presetComboBox.setBounds(presetArea.removeFromLeft(150));
+    nextPresetButton.setBounds(presetArea.removeFromLeft(28).reduced(2));
+    presetStatusLabel.setBounds(presetArea.removeFromLeft(58).reduced(4, 3));
     savePresetButton.setBounds(presetArea.removeFromLeft(90).reduced(2)); // Buttons are now larger
     newPresetButton.setBounds(presetArea.removeFromLeft(100).reduced(2)); // Much larger
     

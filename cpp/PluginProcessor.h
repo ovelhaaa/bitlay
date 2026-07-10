@@ -42,6 +42,7 @@ public:
     void loadPreset (const juce::String& presetName);
     void savePreset (const juce::String& presetName);
     void createDefaultPresetsIfNeeded();
+    bool isCurrentPresetEdited();
 
     juce::String currentPreset = "Default";
 
@@ -56,9 +57,11 @@ public:
 private:
     CVSDDelayCore core;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    void markCurrentPresetClean();
 
     std::vector<float> tempIntegrator;
     std::vector<float> tempStepSize;
+    juce::ValueTree cleanPresetState;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BitlayAudioProcessor)
 };
