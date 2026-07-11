@@ -8,6 +8,16 @@ namespace BitlayUi
     static constexpr int outerMargin = 20;
     static constexpr int panelRadius = 8;
     static constexpr int controlRadius = 5;
+
+    inline void prepareSliderInteraction(juce::Slider& slider,
+                                         juce::AudioProcessorValueTreeState& apvts,
+                                         const juce::String& paramId)
+    {
+        slider.setMouseDragSensitivity(180);
+
+        if (auto* parameter = apvts.getParameter(paramId))
+            slider.setDoubleClickReturnValue(true, parameter->convertFrom0to1(parameter->getDefaultValue()));
+    }
 }
 
 class BitlayLookAndFeel : public juce::LookAndFeel_V4
@@ -85,6 +95,7 @@ struct SliderWithLabel {
     void init(const juce::String& labelText, juce::AudioProcessorValueTreeState& apvts, const juce::String& paramId) {
         slider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
         slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 20);
+        BitlayUi::prepareSliderInteraction(slider, apvts, paramId);
         label.setText(labelText, juce::dontSendNotification);
         label.setJustificationType(juce::Justification::centred);
         attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, paramId, slider);
@@ -98,6 +109,7 @@ struct LinearSliderWithLabel {
     void init(const juce::String& labelText, juce::AudioProcessorValueTreeState& apvts, const juce::String& paramId) {
         slider.setSliderStyle(juce::Slider::LinearHorizontal);
         slider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, 20);
+        BitlayUi::prepareSliderInteraction(slider, apvts, paramId);
         label.setText(labelText, juce::dontSendNotification);
         label.setJustificationType(juce::Justification::centredLeft);
         attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, paramId, slider);
@@ -175,12 +187,12 @@ private:
     juce::GroupComponent groupTap3{"groupTap3", "Tap 3"};
     juce::GroupComponent groupTap4{"groupTap4", "Tap 4"};
 
-    juce::GroupComponent groupEngine{"groupEngine", "1-Bit Engine Core"};
-    juce::GroupComponent groupFilters{"groupFilters", "Tone & Spread"};
-    juce::GroupComponent groupEnv{"groupEnv", "Compander Envelope"};
-    juce::GroupComponent groupLfo{"groupLfo", "Modulation (Wobble)"};
+    juce::GroupComponent groupEngine{"groupEngine", "Delta Core"};
+    juce::GroupComponent groupFilters{"groupFilters", "Bandwidth & Drift"};
+    juce::GroupComponent groupEnv{"groupEnv", "CVSD Response"};
+    juce::GroupComponent groupLfo{"groupLfo", "Motion"};
     
-    juce::GroupComponent groupRev{"groupRev", "Reverse Settings"};
+    juce::GroupComponent groupRev{"groupRev", "Reverse Texture"};
 
     // Components
     // MAIN / MACROS

@@ -407,7 +407,7 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     mix.slider.setName("Main"); mix.init("Mix", apvts, "mix");
     internalBpm.slider.setName("Main"); internalBpm.init("BPM", apvts, "internalBpm");
     bpmSync.init("Host Sync", apvts, "bpmSync");
-    freeze.init("Freeze Loop", apvts, "freeze");
+    freeze.init("Freeze", apvts, "freeze");
     mainSubdivision.init("Subdivision", apvts, "mainSubdivision", subdivs);
 
     // Macros
@@ -416,6 +416,8 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     macroTexture.setName("Texture");
     macroTexture.setRange(0.0, 1.0);
     macroTexture.setValue(0.5);
+    macroTexture.setMouseDragSensitivity(180);
+    macroTexture.setDoubleClickReturnValue(true, 0.5);
     macroTexture.addListener(this);
     labelTexture.setText("DEGRADE", juce::dontSendNotification);
     labelTexture.setJustificationType(juce::Justification::centred);
@@ -425,33 +427,35 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     macroMovement.setName("Movement");
     macroMovement.setRange(0.0, 1.0);
     macroMovement.setValue(0.5);
+    macroMovement.setMouseDragSensitivity(180);
+    macroMovement.setDoubleClickReturnValue(true, 0.5);
     macroMovement.addListener(this);
     labelMovement.setText("MOVEMENT", juce::dontSendNotification);
     labelMovement.setJustificationType(juce::Justification::centred);
 
     // Modulation
-    wobbleRate.slider.setName("Wobble"); wobbleRate.init("Mod Speed", apvts, "wobbleRate");
-    wobbleDepth.slider.setName("Wobble"); wobbleDepth.init("Mod Depth", apvts, "wobbleDepth");
-    wobbleSync.slider.setName("Wobble"); wobbleSync.init("Mod Sync", apvts, "wobbleSync");
+    wobbleRate.slider.setName("Wobble"); wobbleRate.init("Drift Rate", apvts, "wobbleRate");
+    wobbleDepth.slider.setName("Wobble"); wobbleDepth.init("Drift Depth", apvts, "wobbleDepth");
+    wobbleSync.slider.setName("Wobble"); wobbleSync.init("Sync Amount", apvts, "wobbleSync");
 
     // Circuit
     circuitType.init("Architecture", apvts, "circuitType", circuits);
-    coupledMode.init("Coupled Engine", apvts, "coupledMode");
-    character.slider.setName("Drive"); character.init("Pre-Amp Drive", apvts, "character");
-    stepSize.init("Delta Step", apvts, "stepSize");
-    clockJitter.init("Clock Jitter", apvts, "clockJitter");
-    integratorLag.init("Analog Lag", apvts, "integratorLag");
-    reconCutoff.init("Lowpass Freq", apvts, "reconstructionCutoff");
-    integratorLeak.init("Memory Leak", apvts, "integratorLeak");
-    dynamicResponse.init("Dynamic Resp", apvts, "dynamicResponse");
+    coupledMode.init("Musical Coupling", apvts, "coupledMode");
+    character.slider.setName("Drive"); character.init("Drive", apvts, "character");
+    stepSize.init("Step", apvts, "stepSize");
+    clockJitter.init("Instability", apvts, "clockJitter");
+    integratorLag.init("Slew", apvts, "integratorLag");
+    reconCutoff.init("Output Filter", apvts, "reconstructionCutoff");
+    integratorLeak.init("Memory", apvts, "integratorLeak");
+    dynamicResponse.init("Tracking", apvts, "dynamicResponse");
     feedbackTone.init("Tone", apvts, "feedbackTone");
     stereoSpread.init("Width", apvts, "stereoSpread");
     
-    envAttack.init("Env Attack", apvts, "envAttack");
-    envRelease.init("Env Release", apvts, "envRelease");
-    minStepSize.init("Min Delta", apvts, "minStepSize");
-    maxStepSize.init("Max Delta", apvts, "maxStepSize");
-    syllabicTime.init("Syllabic Speed", apvts, "syllabicTime");
+    envAttack.init("Attack", apvts, "envAttack");
+    envRelease.init("Release", apvts, "envRelease");
+    minStepSize.init("Min Step", apvts, "minStepSize");
+    maxStepSize.init("Max Step", apvts, "maxStepSize");
+    syllabicTime.init("Adapt Time", apvts, "syllabicTime");
 
     // Taps
     numTaps.init("Active Taps", apvts, "numTaps");
@@ -463,8 +467,61 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     tap4Mult.init("Time Mult", apvts, "tap4_mult"); tap4Mix.init("Tap Level", apvts, "tap4_mix"); tap4Subdiv.init("Subdiv", apvts, "tap4_subdiv", subdivs);
 
     // Reverse Details
-    reverseChunkSize.init("Buffer Size", apvts, "reverseChunkSize");
-    reverseFeedback.init("Accumulate", apvts, "reverseFeedback");
+    reverseChunkSize.init("Slice Size", apvts, "reverseChunkSize");
+    reverseFeedback.init("Build-Up", apvts, "reverseFeedback");
+
+    auto setSliderTip = [](SliderWithLabel& control, const juce::String& tip) {
+        control.slider.setTooltip(tip + " Double-click resets.");
+        control.label.setTooltip(tip);
+    };
+    auto setLinearTip = [](LinearSliderWithLabel& control, const juce::String& tip) {
+        control.slider.setTooltip(tip + " Double-click resets.");
+        control.label.setTooltip(tip);
+    };
+    auto setComboTip = [](ComboWithLabel& control, const juce::String& tip) {
+        control.combo.setTooltip(tip);
+        control.label.setTooltip(tip);
+    };
+    auto setToggleTip = [](ToggleWithLabel& control, const juce::String& tip) {
+        control.button.setTooltip(tip);
+    };
+
+    setSliderTip(delayTime, "Delay time in free mode, or the resolved time when host sync is off.");
+    setSliderTip(feedback, "How much delayed signal returns into the echo path.");
+    setSliderTip(mix, "Balance between dry signal and processed echoes.");
+    setLinearTip(internalBpm, "Internal tempo used when host sync is unavailable or disabled.");
+    setComboTip(mainSubdivision, "Musical division used for synced delay time.");
+    setToggleTip(bpmSync, "Locks the main delay time to host tempo and subdivision.");
+    setToggleTip(freeze, "Holds the current delay buffer for sustained repeats.");
+    setToggleTip(reverseMode, "Reverses delay slices for backwards echoes.");
+    setToggleTip(bypass, "Bypasses Bitlay processing.");
+
+    macroTexture.setTooltip("Macro for dirt, slew and filtering. Double-click resets.");
+    labelTexture.setTooltip("Macro for dirt, slew and filtering. Double-click resets.");
+    macroMovement.setTooltip("Macro for modulation depth and rate. Double-click resets.");
+    labelMovement.setTooltip("Macro for modulation depth and rate. Double-click resets.");
+
+    setComboTip(circuitType, "Selects the primitive delta circuit behavior.");
+    setToggleTip(coupledMode, "Keeps deeper engine controls musically related.");
+    setSliderTip(character, "Input drive and CVSD stress before the delay path.");
+    setSliderTip(stepSize, "Base 1-bit delta step; higher values get rougher and more angular.");
+    setSliderTip(minStepSize, "Smallest adaptive delta step in companded mode.");
+    setSliderTip(maxStepSize, "Largest adaptive delta step in companded mode.");
+    setSliderTip(clockJitter, "Clock looseness and timebase instability.");
+    setSliderTip(integratorLag, "Slew in the delta integrator; softens fast movement.");
+    setSliderTip(reconCutoff, "Output reconstruction filter; lower values darken the repeats.");
+    setSliderTip(integratorLeak, "How quickly the primitive integrator forgets its previous state.");
+    setSliderTip(dynamicResponse, "How strongly the adaptive engine follows input dynamics.");
+    setSliderTip(feedbackTone, "Low-pass tone inside the feedback path.");
+    setSliderTip(stereoSpread, "Left/right timing and circuit variation.");
+    setSliderTip(envAttack, "How quickly the compander reacts to louder input.");
+    setSliderTip(envRelease, "How quickly the compander relaxes after transients.");
+    setSliderTip(syllabicTime, "Adaptive response time for the CVSD syllabic filter.");
+    setSliderTip(wobbleRate, "Speed of delay-time drift.");
+    setSliderTip(wobbleDepth, "Depth of delay-time drift.");
+    setSliderTip(wobbleSync, "How strongly motion follows rhythmic sync.");
+    setSliderTip(reverseChunkSize, "Length of each reversed slice.");
+    setSliderTip(reverseFeedback, "How much reverse material accumulates in feedback.");
 
     mainTabComp = new juce::Component();
     tapsTabComp = new juce::Component();
