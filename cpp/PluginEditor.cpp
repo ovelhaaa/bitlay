@@ -396,6 +396,19 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     newPresetButton.onClick = [this] { showSaveAsDialog(); };
     startTimerHz(8);
 
+    monitorVisible = loadMonitorVisibility();
+    monitorToggleButton.setButtonText("SCOPE");
+    monitorToggleButton.setClickingTogglesState(true);
+    monitorToggleButton.setToggleState(monitorVisible, juce::dontSendNotification);
+    monitorToggleButton.setTooltip("Shows the technical CVSD monitor.");
+    monitorToggleButton.onClick = [this] {
+        monitorVisible = monitorToggleButton.getToggleState();
+        scope.setVisible(monitorVisible);
+        saveMonitorVisibility();
+        resized();
+    };
+    addAndMakeVisible(monitorToggleButton);
+
     reverseMode.init("REVERSE", apvts, "reverseMode");
     addAndMakeVisible(reverseMode.button);
     bypass.init("BYPASS", apvts, "bypass");
@@ -553,6 +566,7 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
 
     addAndMakeVisible(tabs);
     addAndMakeVisible(scope);
+    scope.setVisible(monitorVisible);
 
     setSize (1000, 720);
 }
@@ -626,6 +640,26 @@ void BitlayAudioProcessorEditor::updatePresetStatus()
     savePresetButton.setButtonText(edited ? "Save*" : "Save");
 }
 
+bool BitlayAudioProcessorEditor::loadMonitorVisibility() const
+{
+    auto settingsFile = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory)
+                            .getChildFile("Bitlay")
+                            .getChildFile("ui.settings");
+
+    if (! settingsFile.existsAsFile())
+        return false;
+
+    return settingsFile.loadFileAsString().contains("scope=1");
+}
+
+void BitlayAudioProcessorEditor::saveMonitorVisibility() const
+{
+    auto settingsDir = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory)
+                           .getChildFile("Bitlay");
+    settingsDir.createDirectory();
+    settingsDir.getChildFile("ui.settings").replaceWithText(monitorVisible ? "scope=1" : "scope=0");
+}
+
 void BitlayAudioProcessorEditor::timerCallback()
 {
     updatePresetStatus();
@@ -652,25 +686,35 @@ void BitlayAudioProcessorEditor::resized()
 
     // Header
     auto headerArea = area.removeFromTop(60);
-    pluginTitle.setBounds(headerArea.removeFromLeft(150));
+    pluginTitle.setBounds(headerArea.removeFromLeft(140));
     
-    auto presetArea = headerArea.removeFromLeft(500).reduced(0, 10);
-    presetLabel.setBounds(presetArea.removeFromLeft(55));
-    previousPresetButton.setBounds(presetArea.removeFromLeft(28).reduced(2));
-    presetComboBox.setBounds(presetArea.removeFromLeft(150));
-    nextPresetButton.setBounds(presetArea.removeFromLeft(28).reduced(2));
-    presetStatusLabel.setBounds(presetArea.removeFromLeft(58).reduced(4, 3));
-    savePresetButton.setBounds(presetArea.removeFromLeft(90).reduced(2)); // Buttons are now larger
-    newPresetButton.setBounds(presetArea.removeFromLeft(100).reduced(2)); // Much larger
+    auto presetArea = headerArea.removeFromLeft(470).reduced(0, 10);
+    presetLabel.setBounds(presetArea.removeFromLeft(50));
+    previousPresetButton.setBounds(presetArea.removeFromLeft(24).reduced(2));
+    presetComboBox.setBounds(presetArea.removeFromLeft(138));
+    nextPresetButton.setBounds(presetArea.removeFromLeft(24).reduced(2));
+    presetStatusLabel.setBounds(presetArea.removeFromLeft(54).reduced(4, 3));
+    savePresetButton.setBounds(presetArea.removeFromLeft(76).reduced(2));
+    newPresetButton.setBounds(presetArea.removeFromLeft(88).reduced(2));
     
-    headerArea.removeFromLeft(20);
-    reverseMode.button.setBounds(headerArea.removeFromLeft(140).reduced(0, 5));
-    headerArea.removeFromLeft(20);
-    bypass.button.setBounds(headerArea.removeFromLeft(100).reduced(0, 10));
+    headerArea.removeFromLeft(10);
+    reverseMode.button.setBounds(headerArea.removeFromLeft(120).reduced(0, 5));
+    headerArea.removeFromLeft(10);
+    bypass.button.setBounds(headerArea.removeFromLeft(90).reduced(0, 10));
+    headerArea.removeFromLeft(8);
+    monitorToggleButton.setBounds(headerArea.removeFromLeft(68).reduced(0, 10));
 
     area.removeFromTop(10);
-    scope.setBounds(area.removeFromTop(112));
-    area.removeFromTop(15);
+    if (monitorVisible)
+    {
+        scope.setBounds(area.removeFromTop(112));
+        area.removeFromTop(15);
+    }
+    else
+    {
+        scope.setBounds({});
+        area.removeFromTop(4);
+    }
     tabs.setBounds(area);
 
     auto placeKnob = [&](SliderWithLabel& swl, int x, int y, int w=80, int h=90) {

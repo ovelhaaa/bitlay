@@ -152,6 +152,8 @@ public:
 private:
     void showSaveAsDialog();
     void updatePresetStatus();
+    bool loadMonitorVisibility() const;
+    void saveMonitorVisibility() const;
 
     BitlayAudioProcessor& audioProcessor;
     BitlayLookAndFeel bitlayLookAndFeel;
@@ -167,7 +169,9 @@ private:
     juce::TextButton savePresetButton;
     juce::TextButton newPresetButton;
     juce::Label presetStatusLabel;
+    juce::TextButton monitorToggleButton;
     std::unique_ptr<juce::AlertWindow> saveAsDialog;
+    bool monitorVisible = false;
 
     // Global Top Bar
     ToggleWithLabel reverseMode;
