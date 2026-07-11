@@ -262,8 +262,78 @@ void OscilloscopeVisualizer::paint(juce::Graphics& g)
     g.strokePath(pStep, juce::PathStrokeType(2.0f));
 }
 
+TapPatternVisualizer::TapPatternVisualizer(BitlayAudioProcessor& p) : processor(p)
+{
+    startTimerHz(15);
+}
+
+TapPatternVisualizer::~TapPatternVisualizer() {}
+
+void TapPatternVisualizer::timerCallback()
+{
+    repaint();
+}
+
+void TapPatternVisualizer::paint(juce::Graphics& g)
+{
+    auto bounds = getLocalBounds().toFloat().reduced(1.0f);
+    g.setColour(BitlayLookAndFeel::panel.withAlpha(0.7f));
+    g.fillRoundedRectangle(bounds, (float) BitlayUi::panelRadius);
+    g.setColour(BitlayLookAndFeel::borderSubtle);
+    g.drawRoundedRectangle(bounds, (float) BitlayUi::panelRadius, 1.0f);
+
+    auto plot = bounds.reduced(24.0f, 24.0f);
+    auto centerY = plot.getCentreY();
+
+    g.setColour(BitlayLookAndFeel::borderStrong.withAlpha(0.55f));
+    g.drawHorizontalLine(juce::roundToInt(centerY), plot.getX(), plot.getRight());
+
+    auto readParam = [this](const juce::String& id, float fallback) {
+        if (auto* value = processor.apvts.getRawParameterValue(id))
+            return value->load();
+        return fallback;
+    };
+
+    auto activeTaps = juce::jlimit(1, 4, juce::roundToInt(readParam("numTaps", 1.0f)));
+    const juce::String tapNames[] { "T1", "T2", "T3", "T4" };
+    const juce::String multIds[] { "tap1_mult", "tap2_mult", "tap3_mult", "tap4_mult" };
+    const juce::String mixIds[] { "tap1_mix", "tap2_mix", "tap3_mix", "tap4_mix" };
+
+    for (int i = 0; i < 4; ++i)
+    {
+        auto mult = juce::jlimit(0.1f, 2.0f, readParam(multIds[i], 1.0f));
+        auto mix = juce::jlimit(0.0f, 1.0f, readParam(mixIds[i], 0.0f));
+        auto normalizedTime = (mult - 0.1f) / 1.9f;
+        auto x = plot.getX() + normalizedTime * plot.getWidth();
+        auto markerHeight = 22.0f + mix * 46.0f;
+        auto markerBounds = juce::Rectangle<float>(x - 8.0f, centerY - markerHeight, 16.0f, markerHeight);
+        auto isActive = i < activeTaps;
+        auto tapColour = isActive ? BitlayLookAndFeel::accent : BitlayLookAndFeel::borderStrong;
+
+        g.setColour(tapColour.withAlpha(isActive ? 0.72f : 0.28f));
+        g.fillRoundedRectangle(markerBounds, 4.0f);
+        g.setColour(tapColour);
+        g.fillEllipse(x - 8.0f, centerY - markerHeight - 10.0f, 16.0f, 16.0f);
+
+        g.setColour(isActive ? BitlayLookAndFeel::textPrimary : BitlayLookAndFeel::textMuted);
+        g.setFont(juce::Font(11.0f, juce::Font::bold));
+        g.drawText(tapNames[i], juce::Rectangle<float>(x - 18.0f, centerY + 10.0f, 36.0f, 16.0f),
+                   juce::Justification::centred, true);
+
+        g.setFont(juce::Font(10.0f));
+        g.drawText(juce::String(juce::roundToInt(mix * 100.0f)) + "%",
+                   juce::Rectangle<float>(x - 20.0f, centerY + 26.0f, 40.0f, 14.0f),
+                   juce::Justification::centred, true);
+    }
+
+    g.setColour(BitlayLookAndFeel::textMuted);
+    g.setFont(juce::Font(10.0f, juce::Font::bold));
+    g.drawText("EARLY", plot.getX(), plot.getBottom() - 4.0f, 48.0f, 14.0f, juce::Justification::left, true);
+    g.drawText("LATE", plot.getRight() - 48.0f, plot.getBottom() - 4.0f, 48.0f, 14.0f, juce::Justification::right, true);
+}
+
 BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), scope(p), tabs(juce::TabbedButtonBar::TabsAtTop)
+    : AudioProcessorEditor (&p), audioProcessor (p), scope(p), tapPattern(p), tabs(juce::TabbedButtonBar::TabsAtTop)
 {
     juce::LookAndFeel::setDefaultLookAndFeel(&bitlayLookAndFeel);
     juce::StringArray subdivs { "1/16", "1/3T", "1/8", "1/8D", "1/4", "1/2D", "1/2", "custom" };
@@ -405,7 +475,7 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     
     // Add groups FIRST so they render behind
     addGroup(mainTabComp, &groupTime); addGroup(mainTabComp, &groupMacros); addGroup(mainTabComp, &groupMix);
-    addGroup(tapsTabComp, &groupTapGlobal); addGroup(tapsTabComp, &groupTap1); addGroup(tapsTabComp, &groupTap2); addGroup(tapsTabComp, &groupTap3); addGroup(tapsTabComp, &groupTap4);
+    addGroup(tapsTabComp, &groupTapPattern); addGroup(tapsTabComp, &groupTapGlobal); addGroup(tapsTabComp, &groupTap1); addGroup(tapsTabComp, &groupTap2); addGroup(tapsTabComp, &groupTap3); addGroup(tapsTabComp, &groupTap4);
     addGroup(circuitTabComp, &groupEngine); addGroup(circuitTabComp, &groupFilters); addGroup(circuitTabComp, &groupEnv);
     addGroup(reverseTabComp, &groupRev); addGroup(reverseTabComp, &groupLfo);
 
@@ -415,7 +485,7 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     
     addComps(circuitTabComp, {&circuitType.combo, &circuitType.label, &coupledMode.button, &stepSize.slider, &stepSize.label, &clockJitter.slider, &clockJitter.label, &integratorLag.slider, &integratorLag.label, &reconCutoff.slider, &reconCutoff.label, &integratorLeak.slider, &integratorLeak.label, &dynamicResponse.slider, &dynamicResponse.label, &envAttack.slider, &envAttack.label, &envRelease.slider, &envRelease.label, &minStepSize.slider, &minStepSize.label, &maxStepSize.slider, &maxStepSize.label, &syllabicTime.slider, &syllabicTime.label});
     
-    addComps(tapsTabComp, {&numTaps.slider, &numTaps.label, &tapDecay.slider, &tapDecay.label, &tap1Mult.slider, &tap1Mult.label, &tap1Mix.slider, &tap1Mix.label, &tap1Subdiv.combo, &tap1Subdiv.label, &tap2Mult.slider, &tap2Mult.label, &tap2Mix.slider, &tap2Mix.label, &tap2Subdiv.combo, &tap2Subdiv.label, &tap3Mult.slider, &tap3Mult.label, &tap3Mix.slider, &tap3Mix.label, &tap3Subdiv.combo, &tap3Subdiv.label, &tap4Mult.slider, &tap4Mult.label, &tap4Mix.slider, &tap4Mix.label, &tap4Subdiv.combo, &tap4Subdiv.label});
+    addComps(tapsTabComp, {&tapPattern, &numTaps.slider, &numTaps.label, &tapDecay.slider, &tapDecay.label, &tap1Mult.slider, &tap1Mult.label, &tap1Mix.slider, &tap1Mix.label, &tap1Subdiv.combo, &tap1Subdiv.label, &tap2Mult.slider, &tap2Mult.label, &tap2Mix.slider, &tap2Mix.label, &tap2Subdiv.combo, &tap2Subdiv.label, &tap3Mult.slider, &tap3Mult.label, &tap3Mix.slider, &tap3Mix.label, &tap3Subdiv.combo, &tap3Subdiv.label, &tap4Mult.slider, &tap4Mult.label, &tap4Mix.slider, &tap4Mix.label, &tap4Subdiv.combo, &tap4Subdiv.label});
     
     addComps(reverseTabComp, {&reverseChunkSize.slider, &reverseChunkSize.label, &reverseFeedback.slider, &reverseFeedback.label, &wobbleRate.slider, &wobbleRate.label, &wobbleDepth.slider, &wobbleDepth.label, &wobbleSync.slider, &wobbleSync.label});
 
@@ -581,16 +651,19 @@ void BitlayAudioProcessorEditor::resized()
     placeKnob(mix, 782, 70, 128, 148);
 
     // TAPS TAB
-    groupTapGlobal.setBounds(10, 10, 200, 240);
-    placeKnob(numTaps, 30, 60);
-    placeKnob(tapDecay, 110, 60);
+    groupTapPattern.setBounds(10, 10, 940, 150);
+    tapPattern.setBounds(28, 34, 904, 108);
+
+    groupTapGlobal.setBounds(10, 178, 200, 250);
+    placeKnob(numTaps, 30, 232);
+    placeKnob(tapDecay, 116, 232);
     
     int tx = 230;
     auto setupTapBox = [&](juce::GroupComponent& group, SliderWithLabel& mult, SliderWithLabel& mx, ComboWithLabel& sub, int startX) {
-        group.setBounds(startX, 10, 160, 240);
-        placeKnob(mult, startX + 10, 50, 60, 80);
-        placeKnob(mx, startX + 90, 50, 60, 80);
-        placeCombo(sub, startX + 40, 170, 80);
+        group.setBounds(startX, 178, 160, 250);
+        placeKnob(mult, startX + 10, 224, 60, 80);
+        placeKnob(mx, startX + 90, 224, 60, 80);
+        placeCombo(sub, startX + 40, 352, 80);
     };
     setupTapBox(groupTap1, tap1Mult, tap1Mix, tap1Subdiv, tx);
     setupTapBox(groupTap2, tap2Mult, tap2Mix, tap2Subdiv, tx + 180);

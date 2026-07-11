@@ -65,6 +65,19 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OscilloscopeVisualizer)
 };
 
+class TapPatternVisualizer : public juce::Component, public juce::Timer
+{
+public:
+    TapPatternVisualizer(BitlayAudioProcessor& p);
+    ~TapPatternVisualizer() override;
+    void paint(juce::Graphics& g) override;
+    void timerCallback() override;
+
+private:
+    BitlayAudioProcessor& processor;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TapPatternVisualizer)
+};
+
 struct SliderWithLabel {
     juce::Slider slider;
     BitlayLabel label;
@@ -131,6 +144,7 @@ private:
     BitlayAudioProcessor& audioProcessor;
     BitlayLookAndFeel bitlayLookAndFeel;
     OscilloscopeVisualizer scope;
+    TapPatternVisualizer tapPattern;
 
     juce::TabbedComponent tabs;
 
@@ -155,6 +169,7 @@ private:
     juce::GroupComponent groupMix{"groupMix", "Output"};
     
     juce::GroupComponent groupTapGlobal{"groupTapGlobal", "Global Taps Settings"};
+    juce::GroupComponent groupTapPattern{"groupTapPattern", "Tap Pattern"};
     juce::GroupComponent groupTap1{"groupTap1", "Tap 1"};
     juce::GroupComponent groupTap2{"groupTap2", "Tap 2"};
     juce::GroupComponent groupTap3{"groupTap3", "Tap 3"};
