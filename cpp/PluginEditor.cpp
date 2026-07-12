@@ -266,7 +266,6 @@ void OscilloscopeVisualizer::paint(juce::Graphics& g)
 
 TapPatternVisualizer::TapPatternVisualizer(BitlayAudioProcessor& p) : processor(p)
 {
-    setTooltip("Drag tap markers horizontally for time and vertically for level.");
     startTimerHz(15);
 }
 
