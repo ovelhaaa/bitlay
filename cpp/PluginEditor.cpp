@@ -349,6 +349,7 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     presetLabel.setFont(juce::Font(11.0f, juce::Font::bold));
     presetLabel.setColour(juce::Label::textColourId, BitlayLookAndFeel::textMuted);
     addAndMakeVisible(presetLabel);
+    addAndMakeVisible(presetCategoryCombo);
     addAndMakeVisible(previousPresetButton);
     addAndMakeVisible(nextPresetButton);
     addAndMakeVisible(presetComboBox);
@@ -359,19 +360,28 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     presetStatusLabel.setColour(juce::Label::textColourId, BitlayLookAndFeel::accent);
     presetStatusLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(presetStatusLabel);
+    presetDescriptionLabel.setFont(juce::Font(11.0f));
+    presetDescriptionLabel.setColour(juce::Label::textColourId, BitlayLookAndFeel::textSecondary);
+    presetDescriptionLabel.setJustificationType(juce::Justification::centredLeft);
+    addAndMakeVisible(presetDescriptionLabel);
+    presetCategoryCombo.addItemList({"All", "Clean", "Vintage", "Dirty", "Rhythmic", "Reverse", "Experimental", "User"}, 1);
+    presetCategoryCombo.setSelectedItemIndex(0, juce::dontSendNotification);
     previousPresetButton.setButtonText("<");
     nextPresetButton.setButtonText(">");
     savePresetButton.setButtonText("Save");
     newPresetButton.setButtonText("Save As...");
     updatePresetList();
     updatePresetStatus();
+    updatePresetDescription();
     presetComboBox.onChange = [this] {
         if (presetComboBox.getSelectedItemIndex() >= 0)
         {
             audioProcessor.loadPreset(presetComboBox.getText());
             updatePresetStatus();
+            updatePresetDescription();
         }
     };
+    presetCategoryCombo.onChange = [this] { updatePresetList(); };
     previousPresetButton.onClick = [this] {
         auto itemCount = presetComboBox.getNumItems();
         auto selectedIndex = juce::jmax(0, presetComboBox.getSelectedItemIndex());
@@ -391,6 +401,7 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
             audioProcessor.savePreset(presetName);
             updatePresetList();
             updatePresetStatus();
+            updatePresetDescription();
         }
     };
     newPresetButton.onClick = [this] { showSaveAsDialog(); };
@@ -568,10 +579,17 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     addAndMakeVisible(scope);
     scope.setVisible(monitorVisible);
 
-    setSize (1000, 720);
+    auto editorSize = loadEditorSize();
+    setResizable(true, true);
+    setResizeLimits(1000, 640, 1400, 980);
+    setSize(editorSize.x, editorSize.y);
 }
 
-BitlayAudioProcessorEditor::~BitlayAudioProcessorEditor() { juce::LookAndFeel::setDefaultLookAndFeel(nullptr); }
+BitlayAudioProcessorEditor::~BitlayAudioProcessorEditor()
+{
+    saveMonitorVisibility();
+    juce::LookAndFeel::setDefaultLookAndFeel(nullptr);
+}
 
 void BitlayAudioProcessorEditor::paint (juce::Graphics& g)
 {
@@ -589,10 +607,73 @@ void BitlayAudioProcessorEditor::updatePresetList()
     presetComboBox.clear();
     auto presets = audioProcessor.getPresetNames();
     presets.sort(true);
-    presetComboBox.addItemList(presets, 1);
-    int index = presets.indexOf(audioProcessor.currentPreset);
+    auto selectedCategory = presetCategoryCombo.getText();
+    juce::StringArray filteredPresets;
+
+    for (auto presetName : presets)
+    {
+        auto category = getPresetCategory(presetName);
+        if (selectedCategory == "All" || selectedCategory.isEmpty() || category == selectedCategory)
+            filteredPresets.add(presetName);
+    }
+
+    if (audioProcessor.currentPreset.isNotEmpty() && ! filteredPresets.contains(audioProcessor.currentPreset))
+        filteredPresets.insert(0, audioProcessor.currentPreset);
+
+    presetComboBox.addItemList(filteredPresets, 1);
+    int index = filteredPresets.indexOf(audioProcessor.currentPreset);
     if (index >= 0) presetComboBox.setSelectedItemIndex(index, juce::dontSendNotification);
-    else if (presets.size() > 0) presetComboBox.setSelectedItemIndex(0, juce::dontSendNotification);
+    else if (filteredPresets.size() > 0) presetComboBox.setSelectedItemIndex(0, juce::dontSendNotification);
+    updatePresetDescription();
+}
+
+juce::String BitlayAudioProcessorEditor::getPresetCategory(const juce::String& presetName) const
+{
+    if (presetName == "Default")
+        return "Clean";
+    if (presetName.containsIgnoreCase("Vintage") || presetName.containsIgnoreCase("Companded Space"))
+        return "Vintage";
+    if (presetName.containsIgnoreCase("Lo-Fi") || presetName.containsIgnoreCase("Crunchy"))
+        return "Dirty";
+    if (presetName.containsIgnoreCase("Rhythmic") || presetName.containsIgnoreCase("Ping-Pong"))
+        return "Rhythmic";
+    if (presetName.containsIgnoreCase("Reverse"))
+        return "Reverse";
+    if (presetName.containsIgnoreCase("Sludge") || presetName.containsIgnoreCase("Chaos"))
+        return "Experimental";
+    return "User";
+}
+
+juce::String BitlayAudioProcessorEditor::getPresetDescription(const juce::String& presetName) const
+{
+    if (presetName == "Default")
+        return "Clean reference delay with balanced repeats.";
+    if (presetName == "Vintage Slapback")
+        return "Short, driven echo for guitar and vocal thickening.";
+    if (presetName == "Lo-Fi Wobble")
+        return "Dark unstable repeats with degraded 1-bit texture.";
+    if (presetName == "Rhythmic Tap Dance")
+        return "Tempo-locked multi-tap pattern for rhythmic movement.";
+    if (presetName == "Deep Companded Space")
+        return "Wide companded ambience with soft dark feedback.";
+    if (presetName == "Ghostly Reverse")
+        return "Reverse slices with floating feedback trails.";
+    if (presetName == "Crunchy Sludge")
+        return "Aggressive slope overload and crushed delay tone.";
+    if (presetName == "Cyberpunk Ping-Pong")
+        return "Synced stereo taps with animated digital motion.";
+    return getPresetCategory(presetName) + " preset.";
+}
+
+void BitlayAudioProcessorEditor::updatePresetDescription()
+{
+    auto presetName = presetComboBox.getText().trim();
+    if (presetName.isEmpty())
+        presetName = audioProcessor.currentPreset;
+
+    auto description = getPresetCategory(presetName) + " - " + getPresetDescription(presetName);
+    presetDescriptionLabel.setText(description, juce::dontSendNotification);
+    presetComboBox.setTooltip(description);
 }
 
 void BitlayAudioProcessorEditor::showSaveAsDialog()
@@ -652,12 +733,40 @@ bool BitlayAudioProcessorEditor::loadMonitorVisibility() const
     return settingsFile.loadFileAsString().contains("scope=1");
 }
 
+juce::Point<int> BitlayAudioProcessorEditor::loadEditorSize() const
+{
+    auto settingsFile = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory)
+                            .getChildFile("Bitlay")
+                            .getChildFile("ui.settings");
+    auto width = 1000;
+    auto height = 720;
+
+    if (settingsFile.existsAsFile())
+    {
+        juce::StringArray lines;
+        lines.addLines(settingsFile.loadFileAsString());
+
+        for (auto line : lines)
+        {
+            if (line.startsWith("width="))
+                width = line.fromFirstOccurrenceOf("=", false, false).getIntValue();
+            else if (line.startsWith("height="))
+                height = line.fromFirstOccurrenceOf("=", false, false).getIntValue();
+        }
+    }
+
+    return { juce::jlimit(1000, 1400, width), juce::jlimit(640, 980, height) };
+}
+
 void BitlayAudioProcessorEditor::saveMonitorVisibility() const
 {
     auto settingsDir = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory)
                            .getChildFile("Bitlay");
     settingsDir.createDirectory();
-    settingsDir.getChildFile("ui.settings").replaceWithText(monitorVisible ? "scope=1" : "scope=0");
+    settingsDir.getChildFile("ui.settings")
+        .replaceWithText(juce::String("scope=") + (monitorVisible ? "1" : "0")
+                         + "\nwidth=" + juce::String(getWidth())
+                         + "\nheight=" + juce::String(getHeight()));
 }
 
 void BitlayAudioProcessorEditor::timerCallback()
@@ -686,23 +795,28 @@ void BitlayAudioProcessorEditor::resized()
 
     // Header
     auto headerArea = area.removeFromTop(60);
-    pluginTitle.setBounds(headerArea.removeFromLeft(140));
+    pluginTitle.setBounds(headerArea.removeFromLeft(118));
     
-    auto presetArea = headerArea.removeFromLeft(470).reduced(0, 10);
-    presetLabel.setBounds(presetArea.removeFromLeft(50));
-    previousPresetButton.setBounds(presetArea.removeFromLeft(24).reduced(2));
-    presetComboBox.setBounds(presetArea.removeFromLeft(138));
-    nextPresetButton.setBounds(presetArea.removeFromLeft(24).reduced(2));
-    presetStatusLabel.setBounds(presetArea.removeFromLeft(54).reduced(4, 3));
-    savePresetButton.setBounds(presetArea.removeFromLeft(76).reduced(2));
-    newPresetButton.setBounds(presetArea.removeFromLeft(88).reduced(2));
+    auto presetArea = headerArea.removeFromLeft(560).reduced(0, 6);
+    auto presetMetaArea = presetArea.removeFromTop(18);
+    presetCategoryCombo.setBounds(presetMetaArea.removeFromLeft(96));
+    presetDescriptionLabel.setBounds(presetMetaArea.reduced(8, 0));
+
+    auto presetControlArea = presetArea.reduced(0, 2);
+    presetLabel.setBounds(presetControlArea.removeFromLeft(46));
+    previousPresetButton.setBounds(presetControlArea.removeFromLeft(24).reduced(2));
+    presetComboBox.setBounds(presetControlArea.removeFromLeft(142));
+    nextPresetButton.setBounds(presetControlArea.removeFromLeft(24).reduced(2));
+    presetStatusLabel.setBounds(presetControlArea.removeFromLeft(50).reduced(4, 3));
+    savePresetButton.setBounds(presetControlArea.removeFromLeft(68).reduced(2));
+    newPresetButton.setBounds(presetControlArea.removeFromLeft(82).reduced(2));
     
-    headerArea.removeFromLeft(10);
-    reverseMode.button.setBounds(headerArea.removeFromLeft(120).reduced(0, 5));
-    headerArea.removeFromLeft(10);
-    bypass.button.setBounds(headerArea.removeFromLeft(90).reduced(0, 10));
-    headerArea.removeFromLeft(8);
-    monitorToggleButton.setBounds(headerArea.removeFromLeft(68).reduced(0, 10));
+    headerArea.removeFromLeft(6);
+    reverseMode.button.setBounds(headerArea.removeFromLeft(104).reduced(0, 5));
+    headerArea.removeFromLeft(6);
+    bypass.button.setBounds(headerArea.removeFromLeft(76).reduced(0, 10));
+    headerArea.removeFromLeft(6);
+    monitorToggleButton.setBounds(headerArea.removeFromLeft(58).reduced(0, 10));
 
     area.removeFromTop(10);
     if (monitorVisible)

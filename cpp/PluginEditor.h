@@ -152,7 +152,11 @@ public:
 private:
     void showSaveAsDialog();
     void updatePresetStatus();
+    juce::String getPresetCategory(const juce::String& presetName) const;
+    juce::String getPresetDescription(const juce::String& presetName) const;
+    void updatePresetDescription();
     bool loadMonitorVisibility() const;
+    juce::Point<int> loadEditorSize() const;
     void saveMonitorVisibility() const;
 
     BitlayAudioProcessor& audioProcessor;
@@ -163,12 +167,14 @@ private:
     juce::TabbedComponent tabs;
 
     // Preset Header
+    juce::ComboBox presetCategoryCombo;
     juce::ComboBox presetComboBox;
     juce::TextButton previousPresetButton;
     juce::TextButton nextPresetButton;
     juce::TextButton savePresetButton;
     juce::TextButton newPresetButton;
     juce::Label presetStatusLabel;
+    juce::Label presetDescriptionLabel;
     juce::TextButton monitorToggleButton;
     std::unique_ptr<juce::AlertWindow> saveAsDialog;
     bool monitorVisible = false;
