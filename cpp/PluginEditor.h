@@ -82,9 +82,18 @@ public:
     ~TapPatternVisualizer() override;
     void paint(juce::Graphics& g) override;
     void timerCallback() override;
+    void mouseDown(const juce::MouseEvent& event) override;
+    void mouseDrag(const juce::MouseEvent& event) override;
+    void mouseUp(const juce::MouseEvent& event) override;
 
 private:
+    juce::Rectangle<float> getPlotBounds() const;
+    void updateTapFromMouse(const juce::MouseEvent& event);
+    float readParam(const juce::String& id, float fallback) const;
+    void setParam(const juce::String& id, float value);
+
     BitlayAudioProcessor& processor;
+    int activeDragTap = -1;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TapPatternVisualizer)
 };
 

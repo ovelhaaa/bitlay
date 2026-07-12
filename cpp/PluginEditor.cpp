@@ -1,4 +1,6 @@
 #include "PluginEditor.h"
+#include <cmath>
+#include <limits>
 
 const juce::Colour BitlayLookAndFeel::accent = juce::Colour(0xffd87932);
 const juce::Colour BitlayLookAndFeel::accentSoft = juce::Colour(0xff8b4a22);
@@ -264,6 +266,7 @@ void OscilloscopeVisualizer::paint(juce::Graphics& g)
 
 TapPatternVisualizer::TapPatternVisualizer(BitlayAudioProcessor& p) : processor(p)
 {
+    setTooltip("Drag tap markers horizontally for time and vertically for level.");
     startTimerHz(15);
 }
 
@@ -282,17 +285,11 @@ void TapPatternVisualizer::paint(juce::Graphics& g)
     g.setColour(BitlayLookAndFeel::borderSubtle);
     g.drawRoundedRectangle(bounds, (float) BitlayUi::panelRadius, 1.0f);
 
-    auto plot = bounds.reduced(24.0f, 24.0f);
+    auto plot = getPlotBounds();
     auto centerY = plot.getCentreY();
 
     g.setColour(BitlayLookAndFeel::borderStrong.withAlpha(0.55f));
     g.drawHorizontalLine(juce::roundToInt(centerY), plot.getX(), plot.getRight());
-
-    auto readParam = [this](const juce::String& id, float fallback) {
-        if (auto* value = processor.apvts.getRawParameterValue(id))
-            return value->load();
-        return fallback;
-    };
 
     auto activeTaps = juce::jlimit(1, 4, juce::roundToInt(readParam("numTaps", 1.0f)));
     const juce::String tapNames[] { "T1", "T2", "T3", "T4" };
@@ -308,7 +305,7 @@ void TapPatternVisualizer::paint(juce::Graphics& g)
         auto markerHeight = 22.0f + mix * 46.0f;
         auto markerBounds = juce::Rectangle<float>(x - 8.0f, centerY - markerHeight, 16.0f, markerHeight);
         auto isActive = i < activeTaps;
-        auto tapColour = isActive ? BitlayLookAndFeel::accent : BitlayLookAndFeel::borderStrong;
+        auto tapColour = i == activeDragTap ? BitlayLookAndFeel::meter : (isActive ? BitlayLookAndFeel::accent : BitlayLookAndFeel::borderStrong);
 
         g.setColour(tapColour.withAlpha(isActive ? 0.72f : 0.28f));
         g.fillRoundedRectangle(markerBounds, 4.0f);
@@ -330,6 +327,90 @@ void TapPatternVisualizer::paint(juce::Graphics& g)
     g.setFont(juce::Font(10.0f, juce::Font::bold));
     g.drawText("EARLY", plot.getX(), plot.getBottom() - 4.0f, 48.0f, 14.0f, juce::Justification::left, true);
     g.drawText("LATE", plot.getRight() - 48.0f, plot.getBottom() - 4.0f, 48.0f, 14.0f, juce::Justification::right, true);
+}
+
+void TapPatternVisualizer::mouseDown(const juce::MouseEvent& event)
+{
+    auto plot = getPlotBounds();
+    auto activeTaps = juce::jlimit(1, 4, juce::roundToInt(readParam("numTaps", 1.0f)));
+    const juce::String multIds[] { "tap1_mult", "tap2_mult", "tap3_mult", "tap4_mult" };
+
+    auto closestDistance = std::numeric_limits<float>::max();
+    activeDragTap = 0;
+
+    for (int i = 0; i < activeTaps; ++i)
+    {
+        auto mult = juce::jlimit(0.1f, 2.0f, readParam(multIds[i], 1.0f));
+        auto normalizedTime = (mult - 0.1f) / 1.9f;
+        auto x = plot.getX() + normalizedTime * plot.getWidth();
+        auto distance = std::abs(event.position.x - x);
+
+        if (distance < closestDistance)
+        {
+            closestDistance = distance;
+            activeDragTap = i;
+        }
+    }
+
+    const juce::String mixIds[] { "tap1_mix", "tap2_mix", "tap3_mix", "tap4_mix" };
+    if (auto* parameter = processor.apvts.getParameter(multIds[activeDragTap])) parameter->beginChangeGesture();
+    if (auto* parameter = processor.apvts.getParameter(mixIds[activeDragTap])) parameter->beginChangeGesture();
+
+    updateTapFromMouse(event);
+}
+
+void TapPatternVisualizer::mouseDrag(const juce::MouseEvent& event)
+{
+    updateTapFromMouse(event);
+}
+
+void TapPatternVisualizer::mouseUp(const juce::MouseEvent&)
+{
+    if (activeDragTap >= 0)
+    {
+        const juce::String multIds[] { "tap1_mult", "tap2_mult", "tap3_mult", "tap4_mult" };
+        const juce::String mixIds[] { "tap1_mix", "tap2_mix", "tap3_mix", "tap4_mix" };
+        if (auto* parameter = processor.apvts.getParameter(multIds[activeDragTap])) parameter->endChangeGesture();
+        if (auto* parameter = processor.apvts.getParameter(mixIds[activeDragTap])) parameter->endChangeGesture();
+    }
+
+    activeDragTap = -1;
+    repaint();
+}
+
+juce::Rectangle<float> TapPatternVisualizer::getPlotBounds() const
+{
+    return getLocalBounds().toFloat().reduced(25.0f, 24.0f);
+}
+
+void TapPatternVisualizer::updateTapFromMouse(const juce::MouseEvent& event)
+{
+    if (activeDragTap < 0)
+        return;
+
+    auto plot = getPlotBounds();
+    auto normalizedTime = juce::jlimit(0.0f, 1.0f, (event.position.x - plot.getX()) / plot.getWidth());
+    auto normalizedLevel = juce::jlimit(0.0f, 1.0f, (plot.getBottom() - event.position.y) / plot.getHeight());
+    auto mult = 0.1f + normalizedTime * 1.9f;
+
+    const juce::String multIds[] { "tap1_mult", "tap2_mult", "tap3_mult", "tap4_mult" };
+    const juce::String mixIds[] { "tap1_mix", "tap2_mix", "tap3_mix", "tap4_mix" };
+    setParam(multIds[activeDragTap], mult);
+    setParam(mixIds[activeDragTap], normalizedLevel);
+    repaint();
+}
+
+float TapPatternVisualizer::readParam(const juce::String& id, float fallback) const
+{
+    if (auto* value = processor.apvts.getRawParameterValue(id))
+        return value->load();
+    return fallback;
+}
+
+void TapPatternVisualizer::setParam(const juce::String& id, float value)
+{
+    if (auto* parameter = processor.apvts.getParameter(id))
+        parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
 }
 
 BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
