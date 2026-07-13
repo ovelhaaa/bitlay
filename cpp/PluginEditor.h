@@ -164,6 +164,10 @@ private:
     juce::String getPresetCategory(const juce::String& presetName) const;
     juce::String getPresetDescription(const juce::String& presetName) const;
     void updatePresetDescription();
+    void captureAbSlot(int slot);
+    void recallAbSlot(int slot);
+    void copyAbSlot(int sourceSlot, int targetSlot);
+    void updateAbButtons();
     bool loadMonitorVisibility() const;
     juce::Point<int> loadEditorSize() const;
     void saveMonitorVisibility() const;
@@ -185,7 +189,13 @@ private:
     juce::Label presetStatusLabel;
     juce::Label presetDescriptionLabel;
     juce::TextButton monitorToggleButton;
+    juce::TextButton abAButton;
+    juce::TextButton abBButton;
+    juce::TextButton abCopyButton;
     std::unique_ptr<juce::AlertWindow> saveAsDialog;
+    juce::ValueTree abStateA;
+    juce::ValueTree abStateB;
+    int activeAbSlot = 0;
     bool monitorVisible = false;
 
     // Global Top Bar

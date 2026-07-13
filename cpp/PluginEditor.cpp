@@ -500,6 +500,31 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     };
     addAndMakeVisible(monitorToggleButton);
 
+    abStateA = audioProcessor.apvts.copyState().createCopy();
+    abStateB = abStateA.createCopy();
+    abAButton.setButtonText("A");
+    abBButton.setButtonText("B");
+    abCopyButton.setButtonText("A>B");
+    abAButton.setTooltip("Recall A. Shift-click captures current settings into A.");
+    abBButton.setTooltip("Recall B. Shift-click captures current settings into B.");
+    abCopyButton.setTooltip("Copy the active A/B slot to the other slot.");
+    abAButton.onClick = [this] {
+        if (juce::ModifierKeys::getCurrentModifiers().isShiftDown()) captureAbSlot(0);
+        else recallAbSlot(0);
+    };
+    abBButton.onClick = [this] {
+        if (juce::ModifierKeys::getCurrentModifiers().isShiftDown()) captureAbSlot(1);
+        else recallAbSlot(1);
+    };
+    abCopyButton.onClick = [this] {
+        if (activeAbSlot == 0) copyAbSlot(0, 1);
+        else copyAbSlot(1, 0);
+    };
+    addAndMakeVisible(abAButton);
+    addAndMakeVisible(abBButton);
+    addAndMakeVisible(abCopyButton);
+    updateAbButtons();
+
     reverseMode.init("REVERSE", apvts, "reverseMode");
     addAndMakeVisible(reverseMode.button);
     bypass.init("BYPASS", apvts, "bypass");
@@ -756,6 +781,52 @@ void BitlayAudioProcessorEditor::updatePresetDescription()
     presetComboBox.setTooltip(description);
 }
 
+void BitlayAudioProcessorEditor::captureAbSlot(int slot)
+{
+    auto snapshot = audioProcessor.apvts.copyState().createCopy();
+    if (slot == 0)
+        abStateA = snapshot;
+    else
+        abStateB = snapshot;
+
+    activeAbSlot = slot;
+    updateAbButtons();
+}
+
+void BitlayAudioProcessorEditor::recallAbSlot(int slot)
+{
+    auto state = slot == 0 ? abStateA : abStateB;
+    if (state.isValid())
+    {
+        audioProcessor.apvts.replaceState(state.createCopy());
+        activeAbSlot = slot;
+        updatePresetStatus();
+        updatePresetDescription();
+        updateAbButtons();
+    }
+}
+
+void BitlayAudioProcessorEditor::copyAbSlot(int sourceSlot, int targetSlot)
+{
+    auto sourceState = sourceSlot == 0 ? abStateA : abStateB;
+    if (! sourceState.isValid())
+        return;
+
+    if (targetSlot == 0)
+        abStateA = sourceState.createCopy();
+    else
+        abStateB = sourceState.createCopy();
+
+    updateAbButtons();
+}
+
+void BitlayAudioProcessorEditor::updateAbButtons()
+{
+    abAButton.setToggleState(activeAbSlot == 0, juce::dontSendNotification);
+    abBButton.setToggleState(activeAbSlot == 1, juce::dontSendNotification);
+    abCopyButton.setButtonText(activeAbSlot == 0 ? "A>B" : "B>A");
+}
+
 void BitlayAudioProcessorEditor::showSaveAsDialog()
 {
     auto suggestedName = presetComboBox.getText().trim();
@@ -885,12 +956,16 @@ void BitlayAudioProcessorEditor::resized()
     auto presetControlArea = presetArea.reduced(0, 2);
     presetLabel.setBounds(presetControlArea.removeFromLeft(46));
     previousPresetButton.setBounds(presetControlArea.removeFromLeft(24).reduced(2));
-    presetComboBox.setBounds(presetControlArea.removeFromLeft(142));
+    presetComboBox.setBounds(presetControlArea.removeFromLeft(134));
     nextPresetButton.setBounds(presetControlArea.removeFromLeft(24).reduced(2));
-    presetStatusLabel.setBounds(presetControlArea.removeFromLeft(50).reduced(4, 3));
-    savePresetButton.setBounds(presetControlArea.removeFromLeft(68).reduced(2));
-    newPresetButton.setBounds(presetControlArea.removeFromLeft(82).reduced(2));
+    presetStatusLabel.setBounds(presetControlArea.removeFromLeft(46).reduced(4, 3));
+    savePresetButton.setBounds(presetControlArea.removeFromLeft(62).reduced(2));
+    newPresetButton.setBounds(presetControlArea.removeFromLeft(76).reduced(2));
     
+    headerArea.removeFromLeft(6);
+    abAButton.setBounds(headerArea.removeFromLeft(30).reduced(1, 10));
+    abBButton.setBounds(headerArea.removeFromLeft(30).reduced(1, 10));
+    abCopyButton.setBounds(headerArea.removeFromLeft(48).reduced(2, 10));
     headerArea.removeFromLeft(6);
     reverseMode.button.setBounds(headerArea.removeFromLeft(104).reduced(0, 5));
     headerArea.removeFromLeft(6);
