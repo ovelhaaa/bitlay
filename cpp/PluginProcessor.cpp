@@ -14,7 +14,7 @@ BitlayAudioProcessor::BitlayAudioProcessor()
 #else
     :
 #endif
-    apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
+    apvts(*this, &undoManager, "PARAMETERS", createParameterLayout())
 {
     createDefaultPresetsIfNeeded();
     markCurrentPresetClean();

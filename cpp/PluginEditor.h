@@ -164,10 +164,15 @@ private:
     juce::String getPresetCategory(const juce::String& presetName) const;
     juce::String getPresetDescription(const juce::String& presetName) const;
     void updatePresetDescription();
+    void loadFavoritePresets();
+    void saveFavoritePresets() const;
+    bool isFavoritePreset(const juce::String& presetName) const;
+    void toggleFavoritePreset();
     void captureAbSlot(int slot);
     void recallAbSlot(int slot);
     void copyAbSlot(int sourceSlot, int targetSlot);
     void updateAbButtons();
+    void updateUndoRedoButtons();
     bool loadMonitorVisibility() const;
     juce::Point<int> loadEditorSize() const;
     void saveMonitorVisibility() const;
@@ -186,15 +191,19 @@ private:
     juce::TextButton nextPresetButton;
     juce::TextButton savePresetButton;
     juce::TextButton newPresetButton;
+    juce::TextButton favoritePresetButton;
     juce::Label presetStatusLabel;
     juce::Label presetDescriptionLabel;
     juce::TextButton monitorToggleButton;
     juce::TextButton abAButton;
     juce::TextButton abBButton;
     juce::TextButton abCopyButton;
+    juce::TextButton undoButton;
+    juce::TextButton redoButton;
     std::unique_ptr<juce::AlertWindow> saveAsDialog;
     juce::ValueTree abStateA;
     juce::ValueTree abStateB;
+    juce::StringArray favoritePresetNames;
     int activeAbSlot = 0;
     bool monitorVisible = false;
 

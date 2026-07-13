@@ -45,7 +45,7 @@ public:
     bool isCurrentPresetEdited();
 
     juce::String currentPreset = "Default";
-
+    juce::UndoManager undoManager;
     juce::AudioProcessorValueTreeState apvts;
 
     // FIFO for Oscilloscope
