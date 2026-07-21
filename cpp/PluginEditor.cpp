@@ -67,6 +67,12 @@ void BitlayLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int w
         g.setColour(controlColor.withAlpha(slider.hasKeyboardFocus(true) ? 0.72f : 0.46f));
         g.drawEllipse(rx - 3.0f, ry - 3.0f, rw + 6.0f, rw + 6.0f, slider.hasKeyboardFocus(true) ? 1.6f : 1.0f);
     }
+
+    if (! slider.isEnabled())
+    {
+        g.setColour(background.withAlpha(0.48f));
+        g.fillEllipse(rx + 2.0f, ry + 2.0f, rw - 4.0f, rw - 4.0f);
+    }
     
     juce::Path track;
     track.addCentredArc(centreX, centreY, radius + 2.0f, radius + 2.0f, 0.0f, rotaryStartAngle, rotaryEndAngle, true);
@@ -834,6 +840,7 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     addAndMakeVisible(tabs);
     addAndMakeVisible(scope);
     scope.setVisible(monitorVisible);
+    updateContextualControlStates();
 
     auto editorSize = loadEditorSize();
     setResizable(true, true);
@@ -1032,6 +1039,35 @@ void BitlayAudioProcessorEditor::updateUndoRedoButtons()
     redoButton.setEnabled(audioProcessor.undoManager.canRedo());
 }
 
+void BitlayAudioProcessorEditor::updateContextualControlStates()
+{
+    auto isSyncEnabled = audioProcessor.apvts.getRawParameterValue("bpmSync")->load() > 0.5f;
+    auto mainSubdivisionIndex = juce::roundToInt(audioProcessor.apvts.getRawParameterValue("mainSubdivision")->load());
+    auto mainTimeIsLocked = isSyncEnabled && mainSubdivisionIndex != 7;
+
+    delayTime.slider.setEnabled(! mainTimeIsLocked);
+    delayTime.label.setEnabled(! mainTimeIsLocked);
+    internalBpm.slider.setEnabled(isSyncEnabled);
+    internalBpm.label.setEnabled(isSyncEnabled);
+    mainSubdivision.combo.setEnabled(isSyncEnabled);
+    mainSubdivision.label.setEnabled(isSyncEnabled);
+
+    SliderWithLabel* tapTimeControls[] { &tap1Mult, &tap2Mult, &tap3Mult, &tap4Mult };
+    ComboWithLabel* tapSubdivisionControls[] { &tap1Subdiv, &tap2Subdiv, &tap3Subdiv, &tap4Subdiv };
+    const juce::String tapSubdivisionIds[] { "tap1_subdiv", "tap2_subdiv", "tap3_subdiv", "tap4_subdiv" };
+
+    for (int i = 0; i < 4; ++i)
+    {
+        auto tapSubdivisionIndex = juce::roundToInt(audioProcessor.apvts.getRawParameterValue(tapSubdivisionIds[i])->load());
+        auto tapTimeIsLocked = isSyncEnabled && mainSubdivisionIndex != 7 && tapSubdivisionIndex != 7;
+
+        tapTimeControls[i]->slider.setEnabled(! tapTimeIsLocked);
+        tapTimeControls[i]->label.setEnabled(! tapTimeIsLocked);
+        tapSubdivisionControls[i]->combo.setEnabled(isSyncEnabled);
+        tapSubdivisionControls[i]->label.setEnabled(isSyncEnabled);
+    }
+}
+
 void BitlayAudioProcessorEditor::showSaveAsDialog()
 {
     auto suggestedName = presetComboBox.getText().trim();
@@ -1130,6 +1166,7 @@ void BitlayAudioProcessorEditor::timerCallback()
 {
     updatePresetStatus();
     updateUndoRedoButtons();
+    updateContextualControlStates();
 }
 
 void BitlayAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)

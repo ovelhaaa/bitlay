@@ -178,6 +178,7 @@ private:
     void copyAbSlot(int sourceSlot, int targetSlot);
     void updateAbButtons();
     void updateUndoRedoButtons();
+    void updateContextualControlStates();
     bool loadMonitorVisibility() const;
     juce::Point<int> loadEditorSize() const;
     void saveMonitorVisibility() const;
