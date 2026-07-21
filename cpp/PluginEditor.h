@@ -229,12 +229,12 @@ private:
     juce::GroupComponent groupTap3{"groupTap3", "Tap 3"};
     juce::GroupComponent groupTap4{"groupTap4", "Tap 4"};
 
-    juce::GroupComponent groupEngine{"groupEngine", "Delta Core"};
-    juce::GroupComponent groupFilters{"groupFilters", "Bandwidth & Drift"};
-    juce::GroupComponent groupEnv{"groupEnv", "CVSD Response"};
-    juce::GroupComponent groupLfo{"groupLfo", "Motion"};
+    juce::GroupComponent groupEngine{"groupEngine", "Delta Engine"};
+    juce::GroupComponent groupFilters{"groupFilters", "Tone & Instability"};
+    juce::GroupComponent groupEnv{"groupEnv", "Adaptive Response"};
+    juce::GroupComponent groupLfo{"groupLfo", "Drift Modulation"};
     
-    juce::GroupComponent groupRev{"groupRev", "Reverse Texture"};
+    juce::GroupComponent groupRev{"groupRev", "Reverse Gesture"};
 
     // Components
     // MAIN / MACROS
@@ -248,6 +248,8 @@ private:
     BitlayLabel labelTexture;
     juce::Slider macroMovement;
     BitlayLabel labelMovement;
+    juce::Label engineGuideLabel;
+    juce::Label labGuideLabel;
 
     // MODULATION (LFO)
     SliderWithLabel wobbleRate, wobbleDepth, wobbleSync;

@@ -762,6 +762,17 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     macroMovement.setTooltip("Macro for modulation depth and rate. Double-click resets.");
     labelMovement.setTooltip("Macro for modulation depth and rate. Double-click resets.");
 
+    engineGuideLabel.setText("Shape the primitive 1-bit engine by cause: delta step, bandwidth, drift and adaptive response.",
+                             juce::dontSendNotification);
+    engineGuideLabel.setFont(juce::Font(12.0f, juce::Font::bold));
+    engineGuideLabel.setColour(juce::Label::textColourId, BitlayLookAndFeel::textSecondary);
+    engineGuideLabel.setJustificationType(juce::Justification::centredLeft);
+    labGuideLabel.setText("Lab controls for reverse texture and modulation behaviour. Use when the main page needs extra weird.",
+                          juce::dontSendNotification);
+    labGuideLabel.setFont(juce::Font(12.0f, juce::Font::bold));
+    labGuideLabel.setColour(juce::Label::textColourId, BitlayLookAndFeel::textSecondary);
+    labGuideLabel.setJustificationType(juce::Justification::centredLeft);
+
     setComboTip(circuitType, "Selects the primitive delta circuit behavior.");
     setToggleTip(coupledMode, "Keeps deeper engine controls musically related.");
     setSliderTip(character, "Input drive and CVSD stress before the delay path.");
@@ -801,11 +812,11 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
 
     addComps(mainTabComp, {&delayTime.slider, &delayTime.label, &feedback.slider, &feedback.label, &mix.slider, &mix.label, &internalBpm.slider, &internalBpm.label, &mainSubdivision.combo, &mainSubdivision.label, &bpmSync.button, &freeze.button, &macroTexture, &labelTexture, &macroMovement, &labelMovement, &character.slider, &character.label, &feedbackTone.slider, &feedbackTone.label, &stereoSpread.slider, &stereoSpread.label});
     
-    addComps(circuitTabComp, {&circuitType.combo, &circuitType.label, &coupledMode.button, &stepSize.slider, &stepSize.label, &clockJitter.slider, &clockJitter.label, &integratorLag.slider, &integratorLag.label, &reconCutoff.slider, &reconCutoff.label, &integratorLeak.slider, &integratorLeak.label, &dynamicResponse.slider, &dynamicResponse.label, &envAttack.slider, &envAttack.label, &envRelease.slider, &envRelease.label, &minStepSize.slider, &minStepSize.label, &maxStepSize.slider, &maxStepSize.label, &syllabicTime.slider, &syllabicTime.label});
+    addComps(circuitTabComp, {&engineGuideLabel, &circuitType.combo, &circuitType.label, &coupledMode.button, &stepSize.slider, &stepSize.label, &clockJitter.slider, &clockJitter.label, &integratorLag.slider, &integratorLag.label, &reconCutoff.slider, &reconCutoff.label, &integratorLeak.slider, &integratorLeak.label, &dynamicResponse.slider, &dynamicResponse.label, &envAttack.slider, &envAttack.label, &envRelease.slider, &envRelease.label, &minStepSize.slider, &minStepSize.label, &maxStepSize.slider, &maxStepSize.label, &syllabicTime.slider, &syllabicTime.label});
     
     addComps(tapsTabComp, {&tapPattern, &numTaps.slider, &numTaps.label, &tapDecay.slider, &tapDecay.label, &tap1Mult.slider, &tap1Mult.label, &tap1Mix.slider, &tap1Mix.label, &tap1Subdiv.combo, &tap1Subdiv.label, &tap2Mult.slider, &tap2Mult.label, &tap2Mix.slider, &tap2Mix.label, &tap2Subdiv.combo, &tap2Subdiv.label, &tap3Mult.slider, &tap3Mult.label, &tap3Mix.slider, &tap3Mix.label, &tap3Subdiv.combo, &tap3Subdiv.label, &tap4Mult.slider, &tap4Mult.label, &tap4Mix.slider, &tap4Mix.label, &tap4Subdiv.combo, &tap4Subdiv.label});
     
-    addComps(reverseTabComp, {&reverseChunkSize.slider, &reverseChunkSize.label, &reverseFeedback.slider, &reverseFeedback.label, &wobbleRate.slider, &wobbleRate.label, &wobbleDepth.slider, &wobbleDepth.label, &wobbleSync.slider, &wobbleSync.label});
+    addComps(reverseTabComp, {&labGuideLabel, &reverseChunkSize.slider, &reverseChunkSize.label, &reverseFeedback.slider, &reverseFeedback.label, &wobbleRate.slider, &wobbleRate.label, &wobbleDepth.slider, &wobbleDepth.label, &wobbleSync.slider, &wobbleSync.label});
 
     tabs.addTab("MAIN", BitlayLookAndFeel::background, mainTabComp, true);
     tabs.addTab("RHYTHM", BitlayLookAndFeel::background, tapsTabComp, true);
@@ -1232,32 +1243,34 @@ void BitlayAudioProcessorEditor::resized()
     setupTapBox(groupTap4, tap4Mult, tap4Mix, tap4Subdiv, tx + 540);
 
     // CIRCUIT TAB
-    groupEngine.setBounds(10, 10, 450, 160);
-    placeCombo(circuitType, 30, 40, 120);
-    placeToggle(coupledMode, 170, 40, 120);
-    placeKnob(stepSize, 40, 80, 80, 90);
-    placeKnob(minStepSize, 170, 80, 80, 90);
-    placeKnob(maxStepSize, 300, 80, 80, 90);
+    engineGuideLabel.setBounds(24, 10, 900, 24);
+    groupEngine.setBounds(10, 42, 450, 160);
+    placeCombo(circuitType, 30, 72, 120);
+    placeToggle(coupledMode, 170, 72, 120);
+    placeKnob(stepSize, 40, 112, 80, 90);
+    placeKnob(minStepSize, 170, 112, 80, 90);
+    placeKnob(maxStepSize, 300, 112, 80, 90);
     
-    groupFilters.setBounds(480, 10, 470, 160);
-    placeKnob(integratorLag, 520, 60, 80, 90);
-    placeKnob(reconCutoff, 650, 60, 80, 90);
-    placeKnob(clockJitter, 780, 60, 80, 90);
+    groupFilters.setBounds(480, 42, 470, 160);
+    placeKnob(integratorLag, 520, 92, 80, 90);
+    placeKnob(reconCutoff, 650, 92, 80, 90);
+    placeKnob(clockJitter, 780, 92, 80, 90);
 
-    groupEnv.setBounds(10, 185, 940, 140);
-    placeKnob(envAttack, 100, 220, 80, 90);
-    placeKnob(envRelease, 250, 220, 80, 90);
-    placeKnob(syllabicTime, 400, 220, 80, 90);
-    placeKnob(integratorLeak, 550, 220, 80, 90);
-    placeKnob(dynamicResponse, 700, 220, 80, 90);
+    groupEnv.setBounds(10, 217, 940, 140);
+    placeKnob(envAttack, 100, 252, 80, 90);
+    placeKnob(envRelease, 250, 252, 80, 90);
+    placeKnob(syllabicTime, 400, 252, 80, 90);
+    placeKnob(integratorLeak, 550, 252, 80, 90);
+    placeKnob(dynamicResponse, 700, 252, 80, 90);
 
     // REVERSE & MOD TAB
-    groupRev.setBounds(10, 10, 300, 160);
-    placeKnob(reverseChunkSize, 40, 50, 80, 90);
-    placeKnob(reverseFeedback, 160, 50, 80, 90);
+    labGuideLabel.setBounds(24, 10, 900, 24);
+    groupRev.setBounds(10, 42, 300, 160);
+    placeKnob(reverseChunkSize, 40, 82, 80, 90);
+    placeKnob(reverseFeedback, 160, 82, 80, 90);
 
-    groupLfo.setBounds(330, 10, 360, 160);
-    placeKnob(wobbleRate, 360, 50, 80, 90);
-    placeKnob(wobbleDepth, 460, 50, 80, 90);
-    placeKnob(wobbleSync, 560, 50, 80, 90);
+    groupLfo.setBounds(330, 42, 360, 160);
+    placeKnob(wobbleRate, 360, 82, 80, 90);
+    placeKnob(wobbleDepth, 460, 82, 80, 90);
+    placeKnob(wobbleSync, 560, 82, 80, 90);
 }
