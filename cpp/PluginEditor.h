@@ -14,6 +14,7 @@ namespace BitlayUi
                                          const juce::String& paramId)
     {
         slider.setMouseDragSensitivity(180);
+        slider.setVelocityModeParameters(0.55, 1, 0.08, true, juce::ModifierKeys::shiftModifier);
 
         if (auto* parameter = apvts.getParameter(paramId))
             slider.setDoubleClickReturnValue(true, parameter->convertFrom0to1(parameter->getDefaultValue()));

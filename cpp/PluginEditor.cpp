@@ -61,6 +61,12 @@ void BitlayLookAndFeel::drawRotarySlider (juce::Graphics& g, int x, int y, int w
     g.drawEllipse (rx + 1.0f, ry + 2.0f, rw - 2.0f, rw - 2.0f, 2.0f);
     g.setColour (borderStrong.withAlpha(0.75f));
     g.drawEllipse (rx, ry, rw, rw, 1.4f);
+
+    if (slider.isMouseOver() || slider.hasKeyboardFocus(true))
+    {
+        g.setColour(controlColor.withAlpha(slider.hasKeyboardFocus(true) ? 0.72f : 0.46f));
+        g.drawEllipse(rx - 3.0f, ry - 3.0f, rw + 6.0f, rw + 6.0f, slider.hasKeyboardFocus(true) ? 1.6f : 1.0f);
+    }
     
     juce::Path track;
     track.addCentredArc(centreX, centreY, radius + 2.0f, radius + 2.0f, 0.0f, rotaryStartAngle, rotaryEndAngle, true);
@@ -732,11 +738,11 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     reverseFeedback.init("Build-Up", apvts, "reverseFeedback");
 
     auto setSliderTip = [](SliderWithLabel& control, const juce::String& tip) {
-        control.slider.setTooltip(tip + " Double-click resets.");
+        control.slider.setTooltip(tip + " Shift-drag fine tunes. Double-click resets.");
         control.label.setTooltip(tip);
     };
     auto setLinearTip = [](LinearSliderWithLabel& control, const juce::String& tip) {
-        control.slider.setTooltip(tip + " Double-click resets.");
+        control.slider.setTooltip(tip + " Shift-drag fine tunes. Double-click resets.");
         control.label.setTooltip(tip);
     };
     auto setComboTip = [](ComboWithLabel& control, const juce::String& tip) {
@@ -757,10 +763,12 @@ BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     setToggleTip(reverseMode, "Reverses delay slices for backwards echoes.");
     setToggleTip(bypass, "Bypasses Bitlay processing.");
 
-    macroTexture.setTooltip("Macro for dirt, slew and filtering. Double-click resets.");
-    labelTexture.setTooltip("Macro for dirt, slew and filtering. Double-click resets.");
-    macroMovement.setTooltip("Macro for modulation depth and rate. Double-click resets.");
-    labelMovement.setTooltip("Macro for modulation depth and rate. Double-click resets.");
+    macroTexture.setVelocityModeParameters(0.55, 1, 0.08, true, juce::ModifierKeys::shiftModifier);
+    macroMovement.setVelocityModeParameters(0.55, 1, 0.08, true, juce::ModifierKeys::shiftModifier);
+    macroTexture.setTooltip("Macro for dirt, slew and filtering. Shift-drag fine tunes. Double-click resets.");
+    labelTexture.setTooltip("Macro for dirt, slew and filtering. Shift-drag fine tunes. Double-click resets.");
+    macroMovement.setTooltip("Macro for modulation depth and rate. Shift-drag fine tunes. Double-click resets.");
+    labelMovement.setTooltip("Macro for modulation depth and rate. Shift-drag fine tunes. Double-click resets.");
 
     engineGuideLabel.setText("Shape the primitive 1-bit engine by cause: delta step, bandwidth, drift and adaptive response.",
                              juce::dontSendNotification);
