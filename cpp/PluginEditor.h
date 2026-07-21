@@ -91,6 +91,10 @@ private:
     void updateTapFromMouse(const juce::MouseEvent& event);
     float readParam(const juce::String& id, float fallback) const;
     void setParam(const juce::String& id, float value);
+    juce::String getSubdivisionLabel(int index) const;
+    float getSubdivisionMultiplier(int index) const;
+    float getEffectiveTapMultiplier(int tapIndex) const;
+    bool isTapTimeLocked(int tapIndex) const;
 
     BitlayAudioProcessor& processor;
     int activeDragTap = -1;

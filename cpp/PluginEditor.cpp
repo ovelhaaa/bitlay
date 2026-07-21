@@ -289,25 +289,54 @@ void TapPatternVisualizer::paint(juce::Graphics& g)
 
     auto plot = getPlotBounds();
     auto centerY = plot.getCentreY();
+    auto bpmSync = readParam("bpmSync", 0.0f) > 0.5f;
+    auto mainSubdivisionIndex = juce::roundToInt(readParam("mainSubdivision", 4.0f));
+    auto syncIsMusical = bpmSync && mainSubdivisionIndex != 7;
+
+    g.setColour(BitlayLookAndFeel::textSecondary);
+    g.setFont(juce::Font(11.0f, juce::Font::bold));
+    g.drawText(syncIsMusical ? "HOST SYNC" : "FREE TIME",
+               bounds.withTrimmedLeft(16.0f).withTrimmedTop(8.0f).withHeight(16.0f),
+               juce::Justification::left, true);
+
+    g.setColour(BitlayLookAndFeel::textMuted);
+    g.setFont(juce::Font(10.0f, juce::Font::bold));
+    g.drawText(syncIsMusical ? (juce::String("MAIN ") + getSubdivisionLabel(mainSubdivisionIndex)) : "DRAG TAPS: TIME + LEVEL",
+               bounds.withTrimmedRight(16.0f).withTrimmedTop(8.0f).withHeight(16.0f),
+               juce::Justification::right, true);
+
+    g.setColour(BitlayLookAndFeel::borderStrong.withAlpha(0.22f));
+    for (int i = 0; i <= 8; ++i)
+    {
+        auto x = plot.getX() + plot.getWidth() * ((float) i / 8.0f);
+        g.drawVerticalLine(juce::roundToInt(x), plot.getY(), plot.getBottom());
+    }
 
     g.setColour(BitlayLookAndFeel::borderStrong.withAlpha(0.55f));
     g.drawHorizontalLine(juce::roundToInt(centerY), plot.getX(), plot.getRight());
 
     auto activeTaps = juce::jlimit(1, 4, juce::roundToInt(readParam("numTaps", 1.0f)));
     const juce::String tapNames[] { "T1", "T2", "T3", "T4" };
-    const juce::String multIds[] { "tap1_mult", "tap2_mult", "tap3_mult", "tap4_mult" };
     const juce::String mixIds[] { "tap1_mix", "tap2_mix", "tap3_mix", "tap4_mix" };
+    const juce::String subdivIds[] { "tap1_subdiv", "tap2_subdiv", "tap3_subdiv", "tap4_subdiv" };
 
     for (int i = 0; i < 4; ++i)
     {
-        auto mult = juce::jlimit(0.1f, 2.0f, readParam(multIds[i], 1.0f));
+        auto mult = juce::jlimit(0.1f, 2.0f, getEffectiveTapMultiplier(i));
         auto mix = juce::jlimit(0.0f, 1.0f, readParam(mixIds[i], 0.0f));
         auto normalizedTime = (mult - 0.1f) / 1.9f;
         auto x = plot.getX() + normalizedTime * plot.getWidth();
         auto markerHeight = 22.0f + mix * 46.0f;
         auto markerBounds = juce::Rectangle<float>(x - 8.0f, centerY - markerHeight, 16.0f, markerHeight);
         auto isActive = i < activeTaps;
+        auto isLocked = isTapTimeLocked(i);
         auto tapColour = i == activeDragTap ? BitlayLookAndFeel::meter : (isActive ? BitlayLookAndFeel::accent : BitlayLookAndFeel::borderStrong);
+
+        if (isLocked)
+        {
+            g.setColour(BitlayLookAndFeel::meter.withAlpha(isActive ? 0.42f : 0.16f));
+            g.drawVerticalLine(juce::roundToInt(x), plot.getY(), plot.getBottom());
+        }
 
         g.setColour(tapColour.withAlpha(isActive ? 0.72f : 0.28f));
         g.fillRoundedRectangle(markerBounds, 4.0f);
@@ -320,9 +349,39 @@ void TapPatternVisualizer::paint(juce::Graphics& g)
                    juce::Justification::centred, true);
 
         g.setFont(juce::Font(10.0f));
-        g.drawText(juce::String(juce::roundToInt(mix * 100.0f)) + "%",
-                   juce::Rectangle<float>(x - 20.0f, centerY + 26.0f, 40.0f, 14.0f),
+        auto timeLabel = isLocked ? getSubdivisionLabel(juce::roundToInt(readParam(subdivIds[i], 7.0f)))
+                                  : (juce::String(mult, 2) + "x");
+        g.drawText(timeLabel,
+                   juce::Rectangle<float>(x - 24.0f, centerY + 26.0f, 48.0f, 14.0f),
                    juce::Justification::centred, true);
+        g.drawText(juce::String(juce::roundToInt(mix * 100.0f)) + "%",
+                   juce::Rectangle<float>(x - 20.0f, centerY + 40.0f, 40.0f, 14.0f),
+                   juce::Justification::centred, true);
+
+        if (! isActive)
+        {
+            g.setColour(BitlayLookAndFeel::textMuted.withAlpha(0.45f));
+            g.drawText("OFF", juce::Rectangle<float>(x - 18.0f, centerY - 18.0f, 36.0f, 14.0f),
+                       juce::Justification::centred, true);
+        }
+    }
+
+    if (activeDragTap >= 0)
+    {
+        auto mix = juce::jlimit(0.0f, 1.0f, readParam(mixIds[activeDragTap], 0.0f));
+        auto mult = juce::jlimit(0.1f, 2.0f, getEffectiveTapMultiplier(activeDragTap));
+        auto readout = tapNames[activeDragTap] + "  "
+                     + (isTapTimeLocked(activeDragTap) ? "SYNC LOCK" : (juce::String(mult, 2) + "x"))
+                     + "  " + juce::String(juce::roundToInt(mix * 100.0f)) + "%";
+
+        auto bubble = juce::Rectangle<float>(plot.getCentreX() - 78.0f, plot.getY() - 19.0f, 156.0f, 18.0f);
+        g.setColour(BitlayLookAndFeel::background.withAlpha(0.86f));
+        g.fillRoundedRectangle(bubble, 5.0f);
+        g.setColour(BitlayLookAndFeel::meter);
+        g.drawRoundedRectangle(bubble, 5.0f, 1.0f);
+        g.setColour(BitlayLookAndFeel::textPrimary);
+        g.setFont(juce::Font(10.0f, juce::Font::bold));
+        g.drawText(readout, bubble, juce::Justification::centred, true);
     }
 
     g.setColour(BitlayLookAndFeel::textMuted);
@@ -342,7 +401,7 @@ void TapPatternVisualizer::mouseDown(const juce::MouseEvent& event)
 
     for (int i = 0; i < activeTaps; ++i)
     {
-        auto mult = juce::jlimit(0.1f, 2.0f, readParam(multIds[i], 1.0f));
+        auto mult = juce::jlimit(0.1f, 2.0f, getEffectiveTapMultiplier(i));
         auto normalizedTime = (mult - 0.1f) / 1.9f;
         auto x = plot.getX() + normalizedTime * plot.getWidth();
         auto distance = std::abs(event.position.x - x);
@@ -355,7 +414,8 @@ void TapPatternVisualizer::mouseDown(const juce::MouseEvent& event)
     }
 
     const juce::String mixIds[] { "tap1_mix", "tap2_mix", "tap3_mix", "tap4_mix" };
-    if (auto* parameter = processor.apvts.getParameter(multIds[activeDragTap])) parameter->beginChangeGesture();
+    if (! isTapTimeLocked(activeDragTap))
+        if (auto* parameter = processor.apvts.getParameter(multIds[activeDragTap])) parameter->beginChangeGesture();
     if (auto* parameter = processor.apvts.getParameter(mixIds[activeDragTap])) parameter->beginChangeGesture();
 
     updateTapFromMouse(event);
@@ -372,7 +432,8 @@ void TapPatternVisualizer::mouseUp(const juce::MouseEvent&)
     {
         const juce::String multIds[] { "tap1_mult", "tap2_mult", "tap3_mult", "tap4_mult" };
         const juce::String mixIds[] { "tap1_mix", "tap2_mix", "tap3_mix", "tap4_mix" };
-        if (auto* parameter = processor.apvts.getParameter(multIds[activeDragTap])) parameter->endChangeGesture();
+        if (! isTapTimeLocked(activeDragTap))
+            if (auto* parameter = processor.apvts.getParameter(multIds[activeDragTap])) parameter->endChangeGesture();
         if (auto* parameter = processor.apvts.getParameter(mixIds[activeDragTap])) parameter->endChangeGesture();
     }
 
@@ -382,7 +443,7 @@ void TapPatternVisualizer::mouseUp(const juce::MouseEvent&)
 
 juce::Rectangle<float> TapPatternVisualizer::getPlotBounds() const
 {
-    return getLocalBounds().toFloat().reduced(25.0f, 24.0f);
+    return getLocalBounds().toFloat().reduced(25.0f, 28.0f).withTrimmedTop(10.0f);
 }
 
 void TapPatternVisualizer::updateTapFromMouse(const juce::MouseEvent& event)
@@ -397,7 +458,8 @@ void TapPatternVisualizer::updateTapFromMouse(const juce::MouseEvent& event)
 
     const juce::String multIds[] { "tap1_mult", "tap2_mult", "tap3_mult", "tap4_mult" };
     const juce::String mixIds[] { "tap1_mix", "tap2_mix", "tap3_mix", "tap4_mix" };
-    setParam(multIds[activeDragTap], mult);
+    if (! isTapTimeLocked(activeDragTap))
+        setParam(multIds[activeDragTap], mult);
     setParam(mixIds[activeDragTap], normalizedLevel);
     repaint();
 }
@@ -415,6 +477,50 @@ void TapPatternVisualizer::setParam(const juce::String& id, float value)
         parameter->setValueNotifyingHost(parameter->convertTo0to1(value));
 }
 
+juce::String TapPatternVisualizer::getSubdivisionLabel(int index) const
+{
+    const juce::String labels[] { "1/16", "1/3T", "1/8", "1/8D", "1/4", "1/2D", "1/2", "CUSTOM" };
+    return labels[juce::jlimit(0, 7, index)];
+}
+
+float TapPatternVisualizer::getSubdivisionMultiplier(int index) const
+{
+    switch (index)
+    {
+        case 0: return 0.25f;
+        case 1: return 1.0f / 3.0f;
+        case 2: return 0.5f;
+        case 3: return 0.75f;
+        case 4: return 1.0f;
+        case 5: return 1.5f;
+        case 6: return 2.0f;
+        default: return 1.0f;
+    }
+}
+
+float TapPatternVisualizer::getEffectiveTapMultiplier(int tapIndex) const
+{
+    const juce::String multIds[] { "tap1_mult", "tap2_mult", "tap3_mult", "tap4_mult" };
+    const juce::String subdivIds[] { "tap1_subdiv", "tap2_subdiv", "tap3_subdiv", "tap4_subdiv" };
+
+    if (isTapTimeLocked(tapIndex))
+    {
+        auto mainMult = getSubdivisionMultiplier(juce::roundToInt(readParam("mainSubdivision", 4.0f)));
+        auto tapMult = getSubdivisionMultiplier(juce::roundToInt(readParam(subdivIds[tapIndex], 7.0f)));
+        return juce::jlimit(0.1f, 2.0f, tapMult / mainMult);
+    }
+
+    return readParam(multIds[tapIndex], 1.0f);
+}
+
+bool TapPatternVisualizer::isTapTimeLocked(int tapIndex) const
+{
+    const juce::String subdivIds[] { "tap1_subdiv", "tap2_subdiv", "tap3_subdiv", "tap4_subdiv" };
+    auto bpmSync = readParam("bpmSync", 0.0f) > 0.5f;
+    auto mainSubdivisionIndex = juce::roundToInt(readParam("mainSubdivision", 4.0f));
+    auto tapSubdivisionIndex = juce::roundToInt(readParam(subdivIds[tapIndex], 7.0f));
+    return bpmSync && mainSubdivisionIndex != 7 && tapSubdivisionIndex != 7;
+}
 BitlayAudioProcessorEditor::BitlayAudioProcessorEditor (BitlayAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), scope(p), tapPattern(p), tabs(juce::TabbedButtonBar::TabsAtTop)
 {
